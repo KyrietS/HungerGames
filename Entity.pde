@@ -14,12 +14,12 @@ class entity{
    else if(value > max){value = max;}
    return(value);
  }
- float get2Dlocation(PVector position3D, int width2D){
-   return(position3D.x + width2D * position3D.y);
+ int get2Dlocation(PVector position3D, int width2D){
+   return(int(position3D.x) + width2D * int(position3D.y));
  }
  void addPositionToCollisionMesh(PVector pos, PVector meshSize, int id){
-   PVector positionAtMesh = new PVector(floor(width / meshSize.x),floor(height/meshSize.y));
-   collisionMesh.collisionBoxes[get2Dlocation(positionAtMesh,meshSize)].entities.add(entitiesList.get(id));
+   PVector positionAtMesh = new PVector(floor(width / pos.x),floor(height/pos.y));
+   collisionMesh.collisionBoxes[get2Dlocation(positionAtMesh,int(meshSize.x))].entities.add(entitiesList.get(id));
  }
  PVector getSize(){
    return(size); 
