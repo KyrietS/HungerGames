@@ -1,2 +1,2 @@
 ArrayList<entity> entitiesList;
-collisionMeshClass collisionMesh;//asdsdadsadsa
+collisionMeshClass collisionMesh;
