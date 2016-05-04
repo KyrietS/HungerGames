@@ -8,6 +8,7 @@ class tribute extends entity{
   timer timerPickup,timerRecoil;
   
   tribute(float x, float y, String Name, int id){
+   type = "tribute";
    position = new PVector(x,y);
    velocity = new PVector(0,0);
    size = new PVector(3.5,3.5);
@@ -69,8 +70,8 @@ class tribute extends entity{
   }
   void update(){
     if(!isAlive(getHealth())){return;}
-    pickupDelay.update();
-    recoil.update();
+    timerPickup.update();
+    timerRecoil.update();
     
     setPosition(getPosition().add(getVelocity()));
     addPositionToCollisionMesh(getPosition(),collisionMesh.getSize(),getID());
@@ -85,9 +86,6 @@ class tribute extends entity{
     textSize(8);
     text(getTributesName(),pos.x - 5, pos.y -5);
   }
-  boolean isTribute(){
-    return(true); 
-  }
   void checkCollisions(ArrayList<entity> entities){
     float distance; 
     PVector pos = getPosition();
@@ -97,7 +95,7 @@ class tribute extends entity{
     distance = dist(currentEntity.position.x,currentEntity.position.y,pos.x,pos.y);
       if(distance < currentEntity.getSize().x) // change to longest side later
       {
-         if(currentEntity.isTribute())
+         if(currentEntity.getType() == "tribute")
          {
            PVector direction = PVector.sub(getPosition(), currentEntity.position);
            direction.normalize();
@@ -105,18 +103,19 @@ class tribute extends entity{
          }
          else
          {
-           entitiesList[currentEntity.getID()].pickUp();
+           entitiesList.get(currentEntity.getID());
+           currentWeapon.pickUp(ID);
          }
       }
     }
   }
   void attackTribute(int TargetID){
     if(TargetID == ID){return;}
-    entity target = entitiesList[TargetID];
-    float dist = dist(position.x,position.y,target.pos.x,target.pos.y) + (1.5*tributes_diameter);
+    entity target = entitiesList.get(TargetID);
+    float dist = dist(position.x,position.y,target.position.x,target.position.y) + (1.5*size.x);
     weapon primaryWeapon = inventory[0];
     float range = primaryWeapon.range;
-    float effective_range = primaryWeapon.effective_range;
+    float effective_range = primaryWeapon.effectiveRange;
     float power = primaryWeapon.power;
     float weight = primaryWeapon.weight;
     float accuracy = primaryWeapon.accuracy;
@@ -124,7 +123,7 @@ class tribute extends entity{
     float delay =primaryWeapon.speed * 1000 + random(-1000,1000);
     timerRecoil.delay = delay;
     boolean hit;
-    if(dist <= range && recoil.passed()){
+    if(dist <= range && timerRecoil.passed()){
       timerRecoil.set();
       int a = round(random(0,100));
       if(a <= accuracy){
@@ -133,9 +132,8 @@ class tribute extends entity{
       }else{hit = false;}
       if(hit){
       if(dist > effective_range){damage *= 1.2;}else{damage *= 0.4;}
-      entitiesList[TargetID].health -= damage;
+        entitiesList.get(TargetID).health -= damage;
       }
     }
   }
  }
-}

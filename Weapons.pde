@@ -4,6 +4,7 @@ class weapon extends entity{
    String name;
    boolean isPickedUp;
    weapon(int id,PVector pos,PVector Size, String Name, float Range, float EffectiveRange, float Power, float Weight, float Accuracy, float Speed ){
+     type = "weapon";
      ID = id;
      range = Range + 3.5; // turned scalling off, to be done later;
      effectiveRange = EffectiveRange + 3.5;
@@ -17,6 +18,15 @@ class weapon extends entity{
      ownerID = ID;
      isPickedUp = false;
    }
+  void pickUp(int ownerid){
+     isPickedUp = true;
+     ownerID = ownerid;
+  }
+  void drop(){
+     isPickedUp = false;
+     position = entitiesList.get(ownerID).getPosition();
+     ownerID = ID;
+  }
   void draw(){
      if(isPickedUp){return;}
      fill(255,0,0);
