@@ -12,7 +12,7 @@ class Entity
     vertices.add( new PVector( 100, 0 ) );
     vertices.add( new PVector( 200, 50 ) );
     vertices.add( new PVector( 200, 150 ) );
-    vertices.add( new PVector( 50, 150 ) );
+    vertices.add( new PVector( 0, 150 ) );
     col = #FF6905;
   }
   
