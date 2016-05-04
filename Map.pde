@@ -11,6 +11,11 @@ class Map
     entities = new ArrayList<Entity>(0);
   }
 
+  void addEntity( Entity e )
+  {
+    entities.add( e );
+  }
+
   void displayAll()
   {
     image(image, 0, 0); 
