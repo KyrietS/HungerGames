@@ -8,4 +8,9 @@ void setup()
 void draw()
 {
   map.displayAll();
+  
+  if( mousePressed )
+  {
+    map.addEntity( new Entity( mouseX, mouseY ) );
+  }
 }
