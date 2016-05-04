@@ -2,8 +2,7 @@ class Entity
 {
   Entity(int x, int y)
   {
-    pos.x = x;
-    pos.y = y;
+    pos.set(x,y);
     debug();
   }
   
