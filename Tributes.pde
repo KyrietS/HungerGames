@@ -104,7 +104,6 @@ class tribute extends entity {
       distance = dist(currentEntity.position.x, currentEntity.position.y, pos.x, pos.y);
       if (distance < currentEntity.getSize().x) // change to longest side later
       {
-<<<<<<< HEAD
          if(currentEntity.getType() == "tribute")
          {
            PVector direction = PVector.sub(getPosition(), currentEntity.position);
@@ -116,18 +115,6 @@ class tribute extends entity {
            weapon currentWeapon = (weapon)entitiesList.get(currentEntity.getID());
            currentWeapon.pickUp(ID);
          }
-=======
-        if (currentEntity.getType() == "tribute")
-        {
-          PVector direction = PVector.sub(getPosition(), currentEntity.position);
-          direction.normalize();
-          moveAtVector(direction, 10);
-        } else
-        {
-          entitiesList.get(currentEntity.getID());
-          currentWeapon.pickUp(ID);
-        }
->>>>>>> origin/master
       }
     }
   }
@@ -144,7 +131,7 @@ class tribute extends entity {
     float weight = primaryWeapon.weight;
     float accuracy = primaryWeapon.accuracy;
     float damage = power;
-    float delay =primaryWeapon.speed * 1000 + random(-1000, 1000);
+    float delay = primaryWeapon.speed * 1000 + random(-1000, 1000);
     timerRecoil.delay = delay;
     boolean hit;
     if (dist <= range && timerRecoil.passed()) {
