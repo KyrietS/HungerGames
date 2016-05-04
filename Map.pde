@@ -7,11 +7,16 @@ class Map{
  {
   dimensions = new PVector(x,y);
   image = createImage(x,y,RGB);
+  entities = new ArrayList<entity>(0);
  }
  
- void display()
+ void displayAll()
  {
   image(image,0,0); 
+  for(int i = 0; i < entities.size(); i++)
+  {
+   entities.get(i).display();
+  }
  }
  
  void setColor(color Color)
