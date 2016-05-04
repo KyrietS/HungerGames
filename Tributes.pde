@@ -1,5 +1,6 @@
 
-class tribute extends entity {
+class tribute extends entity 
+{
   static int tributesCount = 1;
   String name;
   float speed, health, zPos;
@@ -7,7 +8,8 @@ class tribute extends entity {
   weapon[] inventory;
   timer timerPickup, timerRecoil;
 
-  tribute(float x, float y, String Name, int id) {
+  tribute(float x, float y, String Name, int id) 
+  {
     type = "tribute";
     position = new PVector(x, y);
     velocity = new PVector(0, 0);
@@ -23,7 +25,8 @@ class tribute extends entity {
     tributesCount++;//get z height
   }
 
-  float velocityDueToTerrain(float speed) {
+  float velocityDueToTerrain(float speed) 
+  {
     PVector pos = getPosition();
     PVector vel = getVelocity();
     float mass = getMass(); 
@@ -37,10 +40,11 @@ class tribute extends entity {
     speed = speed + (ForceParallel/(frameRate));
     return(speed);
   }
-  void moveTowardsWithSpeed(PVector targetPos, float speed) {
-    if (targetPos == position) {
+  void moveTowardsWithSpeed(PVector targetPos, float speed) 
+  {
+    if (targetPos == position) 
       return;
-    }
+
     targetPos.x = clamp(targetPos.x, 0, width);
     targetPos.y = clamp(targetPos.y, 0, height);
     speed = speed/frameRate;
@@ -51,10 +55,11 @@ class tribute extends entity {
     resultantVel.limit(speed);
     setVelocity(targetPos);
   }
-  void moveAtVector(PVector targetPos, float speed) {
-    if (targetPos == getPosition()) {
+  void moveAtVector(PVector targetPos, float speed) 
+  {
+    if (targetPos == getPosition())
       return;
-    }
+
     speed = speed / frameRate;
     speed = velocityDueToTerrain(speed);
     PVector resultantVel = targetPos.normalize();
@@ -62,48 +67,56 @@ class tribute extends entity {
     resultantVel.limit(speed);
     setVelocity(resultantVel);
   }
-  float getHealth() {
+  float getHealth() 
+  {
     return(health);
   }
-  boolean isAlive(float health) {
-    if (health <= 0) {
+  boolean isAlive(float health) 
+  {
+    if (health <= 0) 
       return(false);
-    } else {
-      return(true);
-    }
+    else 
+    return(true);
   }
-  void setAlive(boolean bool) {
+  void setAlive(boolean bool) 
+  {
     alive = bool;
   }
-  void update() {
-    if (!isAlive(getHealth())) {
+  void update() 
+  {
+    if (!isAlive(getHealth())) 
       return;
-    }
+
     timerPickup.update();
     timerRecoil.update();
 
     setPosition(getPosition().add(getVelocity()));
     addPositionToCollisionMesh(getPosition(), collisionMesh.getSize(), getID());
   }
-  String getTributesName() {
+  String getTributesName() 
+  {
     return(name);
   }
-  void drawTribute() {
+  void drawTribute() 
+  {
     PVector pos = getPosition();
     fill(250);
     ellipse(pos.x, pos.y, getSize().x, getSize().x);
     textSize(8);
     text(getTributesName(), pos.x - 5, pos.y -5);
   }
-  void checkCollisions(ArrayList<entity> entities) {
+  void checkCollisions(ArrayList<entity> entities) 
+  {
     float distance; 
     PVector pos = getPosition();
     entity currentEntity;
-    for (int i = 0; i < entities.size(); i++) {
+    for (int i = 0; i < entities.size(); i++) 
+    {
       currentEntity = entities.get(i);
       distance = dist(currentEntity.position.x, currentEntity.position.y, pos.x, pos.y);
       if (distance < currentEntity.getSize().x) // change to longest side later
       {
+<<<<<<< HEAD
          if(currentEntity.getType() == "tribute")
          {
            PVector direction = PVector.sub(getPosition(), currentEntity.position);
@@ -115,13 +128,25 @@ class tribute extends entity {
            weapon currentWeapon = (weapon)entitiesList.get(currentEntity.getID());
            currentWeapon.pickUp(ID);
          }
+=======
+        if (currentEntity.getType() == "tribute")
+        {
+          PVector direction = PVector.sub(getPosition(), currentEntity.position);
+          direction.normalize();
+          moveAtVector(direction, 10);
+        } else
+        {
+          weapon currentWeapon = (weapon)entitiesList.get(currentEntity.getID());
+          currentWeapon.pickUp(ID);
+        }
+>>>>>>> origin/master
       }
     }
   }
-  void attackTribute(int TargetID) {
-    if (TargetID == ID) {
+  void attackTribute(int TargetID) 
+  {
+    if (TargetID == ID) 
       return;
-    }
     entity target = entitiesList.get(TargetID);
     float dist = dist(position.x, position.y, target.position.x, target.position.y) + (1.5*size.x);
     weapon primaryWeapon = inventory[0];
@@ -134,19 +159,25 @@ class tribute extends entity {
     float delay = primaryWeapon.speed * 1000 + random(-1000, 1000);
     timerRecoil.delay = delay;
     boolean hit;
-    if (dist <= range && timerRecoil.passed()) {
+    if (dist <= range && timerRecoil.passed()) 
+    {
       timerRecoil.set();
       int a = round(random(0, 100));
-      if (a <= accuracy) {
+      if (a <= accuracy) 
+      {
         println(dist);
         hit = true;
-      } else {
+      } else 
+      {
         hit = false;
       }
-      if (hit) {
-        if (dist > effective_range) {
+      if (hit) 
+      {
+        if (dist > effective_range) 
+        {
           damage *= 1.2;
-        } else {
+        } else 
+        {
           damage *= 0.4;
         }
         entitiesList.get(TargetID).health -= damage;
