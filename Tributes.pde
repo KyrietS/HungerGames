@@ -116,7 +116,6 @@ class tribute extends entity
       distance = dist(currentEntity.position.x, currentEntity.position.y, pos.x, pos.y);
       if (distance < currentEntity.getSize().x) // change to longest side later
       {
-<<<<<<< HEAD
          if(currentEntity.getType() == "tribute")
          {
            PVector direction = PVector.sub(getPosition(), currentEntity.position);
@@ -128,18 +127,6 @@ class tribute extends entity
            weapon currentWeapon = (weapon)entitiesList.get(currentEntity.getID());
            currentWeapon.pickUp(ID);
          }
-=======
-        if (currentEntity.getType() == "tribute")
-        {
-          PVector direction = PVector.sub(getPosition(), currentEntity.position);
-          direction.normalize();
-          moveAtVector(direction, 10);
-        } else
-        {
-          weapon currentWeapon = (weapon)entitiesList.get(currentEntity.getID());
-          currentWeapon.pickUp(ID);
-        }
->>>>>>> origin/master
       }
     }
   }
