@@ -1,7 +1,10 @@
 class Entity
 {
-  Entity()
-  {}
+  Entity(int x, int y)
+  {
+    pos = new PVector(x,y);
+    debug();
+  }
   
   void debug()
   {
