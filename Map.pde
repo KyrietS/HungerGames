@@ -15,7 +15,7 @@ class Map {
     image(image, 0, 0); 
     for (int i = 0; i < entities.size(); i++)
     {
-      entities.get(i).display();
+     entities.get(i).display();
     }
   }
 
