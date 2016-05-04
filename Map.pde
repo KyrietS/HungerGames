@@ -1,13 +1,14 @@
-class Map {
+class Map 
+{
   PImage image;
   PVector dimensions;
-  ArrayList<entity> entities;
+  ArrayList<Entity> entities;
 
   Map(int x, int y)
   {
     dimensions = new PVector(x, y);
     image = createImage(x, y, RGB);
-    entities = new ArrayList<entity>(0);
+    entities = new ArrayList<Entity>(0);
   }
 
   void displayAll()
@@ -15,7 +16,7 @@ class Map {
     image(image, 0, 0); 
     for (int i = 0; i < entities.size(); i++)
     {
-     entities.get(i).display();
+      entities.get(i).display();
     }
   }
 
