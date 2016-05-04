@@ -20,3 +20,4 @@ class timer{
   void set(){
    timeStart = millis(); 
   }
+}
