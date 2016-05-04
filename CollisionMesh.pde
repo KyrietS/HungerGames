@@ -36,6 +36,7 @@ class collisionMeshClass{
    return(size); 
   }
 }
+
 class collisionBox{
   PVector leftUpVertex,rightDownVertex;
   float activity, ID;

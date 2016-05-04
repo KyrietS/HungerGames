@@ -1,25 +1,15 @@
-class entity{
+class entity extends object{
  PVector position,velocity,size;
  float mass;
  int ID;
+ String type;
  entity(){
    position = new PVector(0,0);
    velocity = new PVector(0,0);
    size = new PVector(0,0);
    mass = 0;
    ID = 0;
- }
- float clamp(float value,float min, float max){
-   if(value < min){value = min;}
-   else if(value > max){value = max;}
-   return(value);
- }
- int get2Dlocation(PVector position3D, int width2D){
-   return(int(position3D.x) + width2D * int(position3D.y));
- }
- void addPositionToCollisionMesh(PVector pos, PVector meshSize, int id){
-   PVector positionAtMesh = new PVector(floor(width / pos.x),floor(height/pos.y));
-   collisionMesh.collisionBoxes[get2Dlocation(positionAtMesh,int(meshSize.x))].entities.add(entitiesList.get(id));
+   type = "entity";
  }
  PVector getSize(){
    return(size); 
@@ -41,5 +31,8 @@ class entity{
  }
  int getID(){
    return(ID); 
+ }
+ String getType(){
+  return(type); 
  }
 }
