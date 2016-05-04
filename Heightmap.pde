@@ -30,7 +30,7 @@ class heightmapCell {
   int location, meshID;
   int[] localCells;
   PVector position, peakPosition;
-  float modifyGradient;
+  float gradientMultiplier;
   heightmapCell(int id, PVector pos, int[] LocalCells){
     location = id;
     position = pos;
@@ -52,6 +52,7 @@ class heightmapCell {
      heightmap.cells[localCells[i]].position.z += diff/4;
      position.z -= diff/4;
      heightmap.cells[localCells[i]].peakPosition = peakPosition;
+     heightmap.cells[localCells[i]].grdaientMultiplier = gradientMultiplier;
    }
  }
 }

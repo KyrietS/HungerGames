@@ -73,3 +73,4 @@ class bow extends weapon {
     super(id,new PVector(0,0), new PVector(5,5), "bow", 100, 33, 33, 1, 70,5);
   }
 }
+}

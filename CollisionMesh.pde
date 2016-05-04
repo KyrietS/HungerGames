@@ -37,7 +37,7 @@ class collisionMeshClass{
   }
 }
 
-class collisionBox{
+class collisionBox extends object{
   PVector leftUpVertex,rightDownVertex;
   float activity, ID;
   ArrayList<entity> entities; // to allow easier management of collisions, sacrificing efficiency
@@ -64,14 +64,14 @@ class collisionBox{
   }
   void update(){
    setActivity(clamp(getActivity() * (0.9/frameRate),0,100));
-   if(countEntities() > 0)
+   if(entities.size() > 0)
    {
-     for(int i = 0; i < countEntities(); i++)
+     for(int i = 0; i < entities.size(); i++)
      {
-       if(entities.get(i).isTribute() == true)
+       if(entities.get(i).getType() == "tribute")
        {
-          entitiesList[entities.get(i).getID()].checkCollisions(entities);
-       }
+          tribute currentTribute = (tribute)entitiesList.get(entities.get(i).getID()).checkCollisions(entities);
+       } 
      }
    }
   }

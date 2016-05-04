@@ -103,7 +103,7 @@ class tribute extends entity{
          }
          else
          {
-           entitiesList.get(currentEntity.getID());
+           weapon currentWeapon = (weapon)entitiesList.get(currentEntity.getID());
            currentWeapon.pickUp(ID);
          }
       }
