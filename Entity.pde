@@ -1,4 +1,4 @@
-class entity extends object{
+abstract class entity extends object{
  PVector position,velocity,size;
  float mass;
  int ID;
