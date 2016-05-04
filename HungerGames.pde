@@ -1,9 +1,11 @@
 ArrayList<entity> entitiesList;
 collisionMeshClass collisionMesh;
 
-void setup(){
+void setup()
+{
   
 }
-void draw(){
+void draw()
+{
   
 }
