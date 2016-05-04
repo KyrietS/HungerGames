@@ -2,7 +2,8 @@ class Entity
 {
   Entity(int x, int y)
   {
-    pos = new PVector(x,y);
+    pos.x = x;
+    pos.y = y;
     debug();
   }
   
