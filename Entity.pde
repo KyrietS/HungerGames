@@ -7,30 +7,19 @@ class Entity //<>//
     if ( !loadFromFile() )
     {
       println("Entity: Cannot create an entity object. LoadFromFile failed!");
-      vertices.clear();
     }
   }
 
   Entity() {
   } // Default constructor.
 
-  void debug()
+  void display() // Draw an object on the screen.
   {
-    vertices.add( new PVector( 0, 50 ) );
-    vertices.add( new PVector( 100, 0 ) );
-    vertices.add( new PVector( 200, 50 ) );
-    vertices.add( new PVector( 200, 150 ) );
-    vertices.add( new PVector( 0, 150 ) );
-    col = #FF6905;
-  }
-
-  void display()
-  {
-    fill( col );
-    stroke( #000000 );
-    strokeWeight( bold );
-    strokeCap( cap );
-    strokeJoin( edge );
+    fill( col );              // setting: fill color
+    stroke( #000000 );        // setting: line color
+    strokeWeight( bold );     // setting: line weight
+    strokeCap( cap );         // setting: line cap
+    strokeJoin( edge );       // setting: line edge
     pushMatrix();
     translate( pos.x, pos.y );
     
@@ -61,21 +50,22 @@ class Entity //<>//
     pos = v;
   }
 
-  protected PVector pos = new PVector(0, 0);
+  protected PVector pos = new PVector(0, 0);              // Position of the object on the map. (Anchor point)
   protected ArrayList< PVector > vertices = new ArrayList< PVector >();
-  protected color col = #000000;
-  protected String name = "None";
-  protected float bold = 1;
-  protected int edge = MITER;
-  protected int cap = PROJECT;
+  protected color col = #000000;                         // Setting: fill color.
+  protected String name = "None";                        // Name of the object. If "none", the object is not specified.
+  protected float bold = 1;                              // Setting: line weight.
+  protected int edge = MITER;                            // Setting: line edge style.
+  protected int cap = PROJECT;                           // Setting: line cap style.
 
+  // Load data from file: "data\Entity.xml". More info about specification of the file can be found in Docs.
   private boolean loadFromFile()
   {
     boolean entityFound = false;
     try
     {
       XML file = loadXML("data/Entities.xml");
-      if ( file == null )
+      if ( file == null )             // Checks if file was loaded correctly.
       {
         println("Problem with reading from file.");
         return false;
@@ -83,10 +73,10 @@ class Entity //<>//
       XML[] entities = file.getChildren("entity");
       for ( int i = 0; i < entities.length; i++ )
       {
-        // Find a proper utility.
-        if ( !entities[ i ].hasAttribute("name") )  // utility doesn't contain "name" attribute - skip
+        // Find a proper entity.
+        if ( !entities[ i ].hasAttribute("name") )  // entity doesn't contain "name" attribute - skip.
           break;
-        if ( entities[ i ].getString( "name" ).equals(name) )
+        if ( entities[ i ].getString( "name" ).equals(name) ) // correct entity found. Then load it.
         {
           entityFound = true;
           PVector vertex = new PVector();        // Temporary variable for readability.
@@ -94,7 +84,7 @@ class Entity //<>//
 
           // Loading anchor point.
           if ( entities[ i ].getChild("anchor-point") != null && entities[ i ].getChild("anchor-point").hasAttribute("x") &&
-            entities[ i ].getChild("anchor-point").hasAttribute("y"))
+            entities[ i ].getChild("anchor-point").hasAttribute("y"))        // Checks whether entity contains achor-point with x and y attributes.
           {
             anchorPoint.x = entities[ i ].getChild("anchor-point").getFloat("x");
             anchorPoint.y = entities[ i ].getChild("anchor-point").getFloat("y");
@@ -103,19 +93,19 @@ class Entity //<>//
           // Loading color.
           if (  entities[ i ].getChild("color") != null && entities[ i ].getChild("color").hasAttribute("value") )
           {
-            String hexColor = entities[ i ].getChild("color").getString("value");
-            if ( hexColor.charAt(0) == '#')
+            String hexColor = entities[ i ].getChild("color").getString("value");  // Loads color to string. For example: "#FF44BB".
+            if ( hexColor.charAt(0) == '#')        // Checks if first character is '#'. It means that we have hex-style color.
             {
-              try
+              try                                  // Try to convert R, G and B partf from hex-style color. For example: FF, 44, 88 (R, G, B).
               {
                 col = color( unhex(hexColor.substring(1, 3)), unhex(hexColor.substring(3, 5)), unhex(hexColor.substring(5, 7)) );
               }
-              catch( Exception e) {
+              catch( Exception e) {               // Problem with converting. Do nothing.
               }
             }
           }
           // Loading vertices.
-          if ( (entities = entities[ i ].getChildren("vertex")) == null )
+          if ( (entities = entities[ i ].getChildren("vertex")) == null )    // Entity doesn't contain any "vertex" property.
             return false;
           for ( int j = 0; j < entities.length; j++ )
           {
@@ -130,7 +120,7 @@ class Entity //<>//
         }
       } // for
     } // try
-    catch( NullPointerException e )
+    catch( NullPointerException e )    // Unknown problem with reading.
     {
       println("Some element not found.");
       return false;
@@ -156,25 +146,27 @@ class Wall extends Entity
 
   void display()
   {
-    stroke( col );
-    strokeCap( cap );
-    strokeJoin( edge );
-    strokeWeight( bold );
+    stroke( col );          // Setting: line color.
+    strokeCap( cap );       // Setting: line cap.
+    strokeJoin( edge );     // Setting: line edge.
+    strokeWeight( bold );   // Setting: line weight.
     for ( int i = 0; i < vertices.size() - 1; i++ )
     {
       line( vertices.get(i).x, vertices.get(i).y, vertices.get(i+1).x, vertices.get(i+1).y );
     }
   }
 
+  // Loads data from XML object. XML object must contain <entity name="Wall"> tag.
   private boolean loadData( XML data )
   {
     if ( data == null || !data.hasAttribute("name") || !data.getString("name").equals("Wall") || data.getChildren("vertex") == null )
       return false;
-    PVector vertex = new PVector();     // Temporary variablo for readability.
+    PVector vertex = new PVector();             // Temporary variablo for readability.
     XML[] verts = data.getChildren("vertex");
     for ( int i = 0; i < verts.length; i++ )
     {
-      if ( !verts[ i ].hasAttribute("x") || !verts[ i ].hasAttribute("x") )
+      // Current vertex doesn't contain x or y attribute.
+      if ( !verts[ i ].hasAttribute("x") || !verts[ i ].hasAttribute("y") )
         return false;
       vertex.x = verts[ i ].getFloat("x");
       vertex.y = verts[ i ].getFloat("y");
