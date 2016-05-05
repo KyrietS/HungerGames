@@ -87,7 +87,8 @@ class Entity //<>//
           PVector anchorPoint = new PVector();   // Temporary variable for readability.
 
           // Loading anchor point.
-          if ( currentChildAttributeAnchorPoint != null && currentChildAttributeAnchorPoint.hasAttribute("x") && currentChildAttributeAnchorPoint.hasAttribute("y"))        // Checks whether entity contains achor-point with x and y attributes.
+          if ( currentChildAttributeAnchorPoint != null && currentChildAttributeAnchorPoint.hasAttribute("x") && 
+          currentChildAttributeAnchorPoint.hasAttribute("y"))        // Checks whether entity contains achor-point with x and y attributes.
           {
             anchorPoint.x = currentChild.getChild("anchor-point").getFloat("x");
             anchorPoint.y = currentChild.getChild("anchor-point").getFloat("y");
@@ -168,7 +169,8 @@ class Wall extends Entity
   // Loads data from XML object. XML object must contain <entity name="Wall"> tag.
   private boolean loadData( XML data )
   {
-    if ( data == null || !data.hasAttribute("name") || !data.getString("name").equals("Wall") || data.getChildren("vertex") == null ){return false;}
+    if ( data == null || !data.hasAttribute("name") || !data.getString("name").equals("Wall") || data.getChildren("vertex") == null )
+      return false;
     
     PVector vertex = new PVector();             // Temporary variable for readability.
     XML[] verts = data.getChildren("vertex");
