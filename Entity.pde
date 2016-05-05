@@ -45,7 +45,8 @@ class Entity //<>//
     PVector resultantVector = PVector.sub(targetPos,pos);
     resultantVector.normalize();
     resultantVector.mult(speed);
-    acc.set(resultantVector);
+    resultantVector.limit(speed);
+    vel.set(resultantVector);
   }
   
   PVector getPos()
@@ -71,6 +72,7 @@ class Entity //<>//
   private int ID;
   protected PVector pos = new PVector(0, 0);              // Position of the object on the map. (Anchor point)
   protected PVector vel = new PVector(0, 0);              // velocity of the object
+  protected PVector targetVel = new PVector(0,0);
   protected PVector acc = new PVector(0, 0);              // acceleration of the object
   protected ArrayList< PVector > vertices = new ArrayList< PVector >();
   protected color col = #000000;                         // Setting: fill color.
