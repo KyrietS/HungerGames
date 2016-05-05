@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<map>
+	<configuration>
+		<!-- Konfiguracja startowa mapy -->
+	</configuration>
+	<elements>
+		<entity name="Wall">
+			<vertex x="0" y="0" />
+			<vertex x="0" y="600" />
+			<vertex x="800" y="600" />
+			<vertex x="800" y="0" />
+			<vertex x="0" y="0" />
+		</entity>
+	</elements>
+</map>

@@ -1,14 +1,10 @@
 class Map 
 {
-  PImage image;
-  PVector dimensions;
-  ArrayList<Entity> entities;
-
-  Map(int x, int y)
+  Map()
   {
-    dimensions = new PVector(x, y);
-    image = createImage(x, y, RGB);
-    entities = new ArrayList<Entity>(0);
+    image = createImage(width, height, RGB);
+    if( !loadFromFile() )
+      println("Map: Problem with loading data.");
   }
 
   void addEntity( Entity e )
@@ -34,4 +30,36 @@ class Map
     }
     image.updatePixels();
   }
-}
+  
+  private PImage image;
+  private ArrayList<Entity> entities = new ArrayList<Entity>();
+  
+  private boolean loadFromFile()
+  {
+    XML file = loadXML("data/Map.xml");
+    if ( file == null )
+    {
+      println("Problem with reading from file.");
+      return false;
+    }
+    
+    if( file.getChild("elements") == null )
+      return true;
+    
+    // Loading entities.
+    XML[] data;
+    if( (data = file.getChild("elements").getChildren("entity")) == null )
+      return true;
+    for ( int i = 0; i < data.length; i++ )
+    {
+      // Loading walls.
+      if( data[ i ].hasAttribute("name") && data[ i ].getString("name").equals("Wall") )
+      {
+        println( data[i] );
+        entities.add(new Wall( data[ i ] ));
+      }
+    }
+    return true;
+  }
+  
+} // class Map

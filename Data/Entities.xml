@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<entities>
+	<entity name="Box">
+		<anchor-point x="10" y="10"/>
+		<vertex x="0" y="0"/>
+		<vertex x="20" y="0" />
+		<vertex x="20" y="20"/>
+		<vertex x="0" y="20"/>
+		<color value="#FF6905" />
+	</entity>
+</entities>
