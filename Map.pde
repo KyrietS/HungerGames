@@ -17,36 +17,40 @@ class Map
   void removeEntity( int ID )
   {
     int location = findEntityLocationByID(ID);
-    if(location != -1)
+    if(location != -1 && entities.get(location).getEntityName().equals("Box")) // for now just delete class "Box" so as not to delete walls
       entities.remove(location); // deletes entity with the unique id
   }
   
   void removeEntity( Entity e)
   {
     int location = findEntityLocationByID(e.ID);
-    entities.remove(location); 
+    if(location != -1 && entities.get(location).getEntityName().equals("Box")) // for now just delete class "Box" so as not to delete walls
+      entities.remove(location); 
   }
   
   int findEntityLocationByID(int ID)
   {
+    int location = -1; //the default value, acts like null as int cannot be null
     for (int i = 0; i < entities.size(); i++)
     {
       Entity currentEntity = entities.get(i);
       if( currentEntity.ID == ID )
-       return i; // return location
+       location = i; // return location
     }
-    return -1; // if no entity with such ID return -1
+    return location; // if no entity with such ID return -1
   }
   
-  int findEntityLocationByPos(PVector pos)
+  int findEntityLocationByPos(float x, float y)
   {
+    PVector pos = new PVector(x,y);
+    int location = -1;
     for (int i = 0; i < entities.size(); i++)
     {
       Entity currentEntity = entities.get(i);
-      if(dist(currentEntity.pos.x,currentEntity.pos.y,pos.x,pos.y) < 50 && currentEntity.getEntityName() != "Wall"); // checks if the entity is "close", to be added: proper collision detection 
-       return i; // return location
+      if(dist(currentEntity.pos.x,currentEntity.pos.y,pos.x,pos.y) < 14) // checks if the entity is "close". to be added: proper collision detection 
+        location = i; // return location
     }
-    return -1; // if no entity at pos return -1
+    return location; // if no entity at pos return -1
   }
   void displayAll()
   {

@@ -49,9 +49,11 @@ class Entity //<>//
   {
     pos = v;
   }
+  
   String getEntityName(){
    return name; 
   }
+  
   private int ID;
   protected PVector pos = new PVector(0, 0);              // Position of the object on the map. (Anchor point)
   protected ArrayList< PVector > vertices = new ArrayList< PVector >();
