@@ -1,5 +1,6 @@
 class Entity //<>//
 {
+  Settings settings = new Settings(#000000,#000000,1,MITER,PROJECT);
   Entity(String _name, int x, int y)
   {
     pos.set(x, y);
@@ -15,29 +16,25 @@ class Entity //<>//
   
   void display() // Draw an object on the screen.
   {
-    fill( col );              // setting: fill color
-    stroke( #000000 );        // setting: line color
-    strokeWeight( bold );     // setting: line weight
-    strokeCap( cap );         // setting: line cap
-    strokeJoin( edge );       // setting: line edge
+    settings.applySettings();
     pushMatrix();
     translate( pos.x, pos.y );
-    
     beginShape();
-
+    
     for ( int i = 0; i < vertices.size(); i++ )
     {
       vertex( vertices.get( i ).x, vertices.get(i).y );
     }
-
+    
     endShape(CLOSE);
     popMatrix();
   }
+  
   void update()
   {
     pos.add(vel);
-    vel.add(acc);
   }
+  
   void moveTowards(float x, float y, float speed)
   {
     speed/= frameRate;
@@ -72,14 +69,9 @@ class Entity //<>//
   private int ID;
   protected PVector pos = new PVector(0, 0);              // Position of the object on the map. (Anchor point)
   protected PVector vel = new PVector(0, 0);              // velocity of the object
-  protected PVector targetVel = new PVector(0,0);
-  protected PVector acc = new PVector(0, 0);              // acceleration of the object
   protected ArrayList< PVector > vertices = new ArrayList< PVector >();
-  protected color col = #000000;                         // Setting: fill color.
   protected String name = "None";                        // Name of the object. If "none", the object is not specified.
-  protected float bold = 1;                              // Setting: line weight.
-  protected int edge = MITER;                            // Setting: line edge style.
-  protected int cap = PROJECT;                           // Setting: line cap style.
+
 
   // Load data from file: "data\Entity.xml". More info about specification of the file can be found in Docs.
   private boolean loadFromFile()
@@ -125,7 +117,7 @@ class Entity //<>//
             {
               try                                  // Try to convert R, G and B partf from hex-style color. For example: FF, 44, 88 (R, G, B).
               {
-                col = color( unhex(hexColor.substring(1, 3)), unhex(hexColor.substring(3, 5)), unhex(hexColor.substring(5, 7)) );
+                settings.col = color( unhex(hexColor.substring(1, 3)), unhex(hexColor.substring(3, 5)), unhex(hexColor.substring(5, 7)) );
               }
               catch( Exception e) {               // Problem with converting. Do nothing.
               }
@@ -170,19 +162,15 @@ class Wall extends Entity
 {
   Wall( XML data )
   {
-    bold = 25;
-    col = #BD80BD;
-    
+    settings.bold = 25;
+    settings.col = #BD80BD;
     if ( !loadData( data ) )
       println( "Wall: Cannot load data." );
   }
 
   void display()
   {
-    stroke( col );          // Setting: line color.
-    strokeCap( cap );       // Setting: line cap.
-    strokeJoin( edge );     // Setting: line edge.
-    strokeWeight( bold );   // Setting: line weight.
+    settings.applySettings();
     for ( int i = 0; i < vertices.size() - 1; i++ )
     {
       line( vertices.get(i).x, vertices.get(i).y, vertices.get(i+1).x, vertices.get(i+1).y );
