@@ -43,12 +43,12 @@ class Map
       return false;
     }
     
-    if( file.getChild("elements") == null )
+    if( file.getChild("elements") == null )      // <elements> tag not found.
       return true;
     
     // Loading entities.
     XML[] data;
-    if( (data = file.getChild("elements").getChildren("entity")) == null )
+    if( (data = file.getChild("elements").getChildren("entity")) == null )   // Didn't find any <entity> tags.
       return true;
     for ( int i = 0; i < data.length; i++ )
     {
