@@ -7,6 +7,7 @@ void settings(){ // required to use variables inside the function size()
 
 void setup()
 {
+  noStroke();
 }
 
 void draw()
