@@ -55,7 +55,6 @@ class Map
       // Loading walls.
       if( data[ i ].hasAttribute("name") && data[ i ].getString("name").equals("Wall") )
       {
-        println( data[i] );
         entities.add(new Wall( data[ i ] ));
       }
     }
