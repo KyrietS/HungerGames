@@ -41,7 +41,7 @@ class Entity //<>//
     PVector targetPos = new PVector(x,y);
     PVector resultantVector = PVector.sub(targetPos,pos);
     resultantVector.normalize();
-    resultantVector.mult(speed);
+    resultantVector.mult(speed * random(0.5,1.5));
     resultantVector.limit(speed);
     vel.set(resultantVector);
   }
