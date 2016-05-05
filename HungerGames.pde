@@ -1,10 +1,14 @@
 Map map;
+
+void settings(){ // required to use variables inside the function size()
+  map = new Map();  
+  size(int(map.dimensions.x), int(map.dimensions.y));
+}
+
 void setup()
 {
-  size( 800, 600 );
-  map = new Map();  
-  map.setColor(color(100));
 }
+
 void draw()
 {
   map.displayAll();

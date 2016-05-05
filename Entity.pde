@@ -73,27 +73,30 @@ class Entity //<>//
       XML[] entities = file.getChildren("entity");
       for ( int i = 0; i < entities.length; i++ )
       {
+        XML currentChild = entities[ i ]; //Temporary variables for readability, stores current child and some attributes to remove repetition of code
+        XML currentChildAttributeAnchorPoint = currentChild.getChild("anchor-point"); 
+        XML currentChildAttributeColor = currentChild.getChild("color");
+        
         // Find a proper entity.
-        if ( !entities[ i ].hasAttribute("name") )  // entity doesn't contain "name" attribute - skip.
+        if ( !currentChild.hasAttribute("name") )  // entity doesn't contain "name" attribute - skip.
           break;
-        if ( entities[ i ].getString( "name" ).equals(name) ) // correct entity found. Then load it.
+        if ( currentChild.getString( "name" ).equals(name) ) // correct entity found. Then load it. // suggestion: change name to type
         {
           entityFound = true;
           PVector vertex = new PVector();        // Temporary variable for readability.
           PVector anchorPoint = new PVector();   // Temporary variable for readability.
 
           // Loading anchor point.
-          if ( entities[ i ].getChild("anchor-point") != null && entities[ i ].getChild("anchor-point").hasAttribute("x") &&
-            entities[ i ].getChild("anchor-point").hasAttribute("y"))        // Checks whether entity contains achor-point with x and y attributes.
+          if ( currentChildAttributeAnchorPoint != null && currentChildAttributeAnchorPoint.hasAttribute("x") && currentChildAttributeAnchorPoint.hasAttribute("y"))        // Checks whether entity contains achor-point with x and y attributes.
           {
-            anchorPoint.x = entities[ i ].getChild("anchor-point").getFloat("x");
-            anchorPoint.y = entities[ i ].getChild("anchor-point").getFloat("y");
+            anchorPoint.x = currentChild.getChild("anchor-point").getFloat("x");
+            anchorPoint.y = currentChild.getChild("anchor-point").getFloat("y");
           }
 
           // Loading color.
-          if (  entities[ i ].getChild("color") != null && entities[ i ].getChild("color").hasAttribute("value") )
+          if ( currentChildAttributeColor != null && currentChildAttributeColor.hasAttribute("value") )
           {
-            String hexColor = entities[ i ].getChild("color").getString("value");  // Loads color to string. For example: "#FF44BB".
+            String hexColor = currentChildAttributeColor.getString("value");  // Loads color to string. For example: "#FF44BB".
             if ( hexColor.charAt(0) == '#')        // Checks if first character is '#'. It means that we have hex-style color.
             {
               try                                  // Try to convert R, G and B partf from hex-style color. For example: FF, 44, 88 (R, G, B).
@@ -104,16 +107,21 @@ class Entity //<>//
               }
             }
           }
+          
           // Loading vertices.
-          if ( (entities = entities[ i ].getChildren("vertex")) == null )    // Entity doesn't contain any "vertex" property.
+          if ( (entities = currentChild.getChildren("vertex")) == null )    // Entity doesn't contain any "vertex" property.
+          {
             return false;
+          }
           for ( int j = 0; j < entities.length; j++ )
           {
+            XML currentEntityJ = entities[ j ]; //temporary variable to remove repetition and improve readability
+            
             // One of the vertices doesn't contain x or y attribute.
-            if ( !entities[ j ].hasAttribute("x") || !entities[ j ].hasAttribute("x") )
+            if ( !currentEntityJ.hasAttribute("x") || !currentEntityJ.hasAttribute("y") )
               return false;
-            vertex.x = entities[ j ].getFloat("x") - anchorPoint.x;
-            vertex.y = entities[ j ].getFloat("y") - anchorPoint.y;
+            vertex.x = currentEntityJ.getFloat("x") - anchorPoint.x;
+            vertex.y = currentEntityJ.getFloat("y") - anchorPoint.y;
             vertices.add( new PVector( vertex.x, vertex.y ) );
           }
           return true;
@@ -130,8 +138,9 @@ class Entity //<>//
       println("Cannot find \"" + name + "\" entity in file: \"Data\\Entities.xml\"");
     }
     return false;
-  } // loadFromFile
+  } // loadDataFromFile
 } // class Entity
+
 
 class Wall extends Entity
 {
@@ -159,10 +168,11 @@ class Wall extends Entity
   // Loads data from XML object. XML object must contain <entity name="Wall"> tag.
   private boolean loadData( XML data )
   {
-    if ( data == null || !data.hasAttribute("name") || !data.getString("name").equals("Wall") || data.getChildren("vertex") == null )
-      return false;
-    PVector vertex = new PVector();             // Temporary variablo for readability.
+    if ( data == null || !data.hasAttribute("name") || !data.getString("name").equals("Wall") || data.getChildren("vertex") == null ){return false;}
+    
+    PVector vertex = new PVector();             // Temporary variable for readability.
     XML[] verts = data.getChildren("vertex");
+    
     for ( int i = 0; i < verts.length; i++ )
     {
       // Current vertex doesn't contain x or y attribute.
