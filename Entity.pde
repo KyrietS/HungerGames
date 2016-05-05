@@ -45,8 +45,7 @@ class Entity //<>//
     PVector resultantVector = PVector.sub(targetPos,pos);
     resultantVector.normalize();
     resultantVector.mult(speed);
-    resultantVector.limit(speed);
-    vel.set(resultantVector);
+    acc.set(resultantVector);
   }
   
   PVector getPos()
