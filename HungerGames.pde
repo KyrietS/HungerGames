@@ -1,8 +1,8 @@
 Map map;
 void setup()
 {
-  size(500, 500);
-  map = new Map(500, 500);  
+  size( 800, 600 );
+  map = new Map();  
   map.setColor(color(100));
 }
 void draw()
@@ -11,6 +11,6 @@ void draw()
   
   if( mousePressed )
   {
-    map.addEntity( new Entity( mouseX, mouseY ) );
+    map.addEntity( new Entity( "Box", mouseX, mouseY ) );
   }
 }
