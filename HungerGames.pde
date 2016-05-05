@@ -12,8 +12,6 @@ void setup()
 void draw()
 {
   map.displayAll();
-  
-
 }
 
 void mouseClicked()
@@ -24,7 +22,7 @@ void mouseClicked()
  
   } else if(mouseButton == RIGHT)
   {
-    int location = map.findEntityLocationByPos(new PVector(mouseX,mouseY));
+    int location = map.findEntityLocationByPos(mouseX,mouseY);
     if(location != -1 )
       map.removeEntity(location);
   }
