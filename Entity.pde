@@ -12,7 +12,7 @@ class Entity //<>//
 
   Entity() {
   } // Default constructor.
-
+  
   void display() // Draw an object on the screen.
   {
     fill( col );              // setting: fill color
@@ -49,7 +49,10 @@ class Entity //<>//
   {
     pos = v;
   }
-
+  String getEntityName(){
+   return name; 
+  }
+  private int ID;
   protected PVector pos = new PVector(0, 0);              // Position of the object on the map. (Anchor point)
   protected ArrayList< PVector > vertices = new ArrayList< PVector >();
   protected color col = #000000;                         // Setting: fill color.

@@ -10,9 +10,44 @@ class Map
 
   void addEntity( Entity e )
   {
+    e.ID = entities.size();
     entities.add( e );
   }
-
+  
+  void removeEntity( int ID )
+  {
+    int location = findEntityLocationByID(ID);
+    if(location != -1)
+      entities.remove(location); // deletes entity with the unique id
+  }
+  
+  void removeEntity( Entity e)
+  {
+    int location = findEntityLocationByID(e.ID);
+    entities.remove(location); 
+  }
+  
+  int findEntityLocationByID(int ID)
+  {
+    for (int i = 0; i < entities.size(); i++)
+    {
+      Entity currentEntity = entities.get(i);
+      if( currentEntity.ID == ID )
+       return i; // return location
+    }
+    return -1; // if no entity with such ID return -1
+  }
+  
+  int findEntityLocationByPos(PVector pos)
+  {
+    for (int i = 0; i < entities.size(); i++)
+    {
+      Entity currentEntity = entities.get(i);
+      if(dist(currentEntity.pos.x,currentEntity.pos.y,pos.x,pos.y) < 50 && currentEntity.getEntityName() != "Wall"); // checks if the entity is "close", to be added: proper collision detection 
+       return i; // return location
+    }
+    return -1; // if no entity at pos return -1
+  }
   void displayAll()
   {
     image(image, 0, 0); 
