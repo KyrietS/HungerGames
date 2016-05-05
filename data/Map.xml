@@ -2,9 +2,8 @@
 <map>
 	<configuration>
 		<!-- Konfiguracja startowa mapy -->
-		<width value="800" />
-		<height value="600" />
-		<background-color value="#C2C2C2" />
+		<size x="800" y ="600"/>
+		<background-color value="#c2c2c2" />
 		<debug-mode value="true" />
 	</configuration>
 	<elements>

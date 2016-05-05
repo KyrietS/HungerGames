@@ -2,9 +2,10 @@ class Map
 {
   Map()
   {
-    image = createImage(width, height, RGB);
     if( !loadFromFile() )
       println("Map: Problem with loading data.");
+    image = createImage(int(dimensions.x), int(dimensions.y), RGB);
+    setColor(backgroundColor);
   }
 
   void addEntity( Entity e )
@@ -30,9 +31,11 @@ class Map
     }
     image.updatePixels();
   }
-  
+  private color backgroundColor;
   private PImage image;
+  private PVector dimensions;
   private ArrayList<Entity> entities = new ArrayList<Entity>();
+  private boolean debugMode;
   
   private boolean loadFromFile()
   {
@@ -45,7 +48,36 @@ class Map
     
     if( file.getChild("elements") == null )      // <elements> tag not found.
       return true;
+      
+    // reading configuation file
+    if(file.getChild("configuration") == null || !file.getChild("configuration").hasChildren())
+      return false;
+     
+    XML settings = file.getChild("configuration"); // if there is a <congifuration> tag
     
+    if( settings.getChild("size") != null)
+    {
+        dimensions = new PVector( settings.getChild("size").getInt("x") , settings.getChild("size").getInt("y") );
+    }
+    
+    if( settings.getChild("background-color") != null) // if find tag <background-color>
+    {
+       String hexColor = settings.getChild("background-color").getString("value");  // Loads color to string. For example: "#FF44BB".
+       if ( hexColor.charAt(0) == '#')        // Checks if first character is '#'. It means that we have hex-style color.
+       {
+         try                                  // Try to convert R, G and B partf from hex-style color. For example: FF, 44, 88 (R, G, B).
+         {
+           backgroundColor = color( unhex(hexColor.substring(1, 3)), unhex(hexColor.substring(3, 5)), unhex(hexColor.substring(5, 7)) );
+         }
+         catch( Exception e) {               // Problem with converting. Do nothing.
+         }
+       }
+    }
+    
+    if( settings.getChild("debug-mode") != null) // if find tag <debug-mode>
+    {
+       debugMode = true; // set debug mode to true
+    }
     // Loading entities.
     XML[] data;
     if( (data = file.getChild("elements").getChildren("entity")) == null )   // Didn't find any <entity> tags.
