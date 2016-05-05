@@ -2,6 +2,9 @@
 <map>
 	<configuration>
 		<!-- Konfiguracja startowa mapy -->
+		<width value="800" />
+		<height value="600" />
+		<background-color value="#C2C2C2" />
 	</configuration>
 	<elements>
 		<entity name="Wall">
