@@ -5,6 +5,7 @@
 		<width value="800" />
 		<height value="600" />
 		<background-color value="#C2C2C2" />
+		<debug-mode value="true" />
 	</configuration>
 	<elements>
 		<entity name="Wall">
