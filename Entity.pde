@@ -1,10 +1,10 @@
 class Entity //<>//
 {
   Settings settings = new Settings(#000000,#000000,1,MITER,PROJECT);
-  Entity(String _name, int x, int y)
+  Entity(String _type, int x, int y)
   {
     pos.set(x, y);
-    name = _name;
+    type = _type;
     if ( !loadFromFile() )
     {
       println("Entity: Cannot create an entity object. LoadFromFile failed!");
@@ -62,15 +62,15 @@ class Entity //<>//
     pos = v;
   }
   
-  String getEntityName(){
-   return name; 
+  String getEntityType(){
+   return type; 
   }
   
   private int ID;
   protected PVector pos = new PVector(0, 0);              // Position of the object on the map. (Anchor point)
   protected PVector vel = new PVector(0, 0);              // velocity of the object
   protected ArrayList< PVector > vertices = new ArrayList< PVector >();
-  protected String name = "None";                        // Name of the object. If "none", the object is not specified.
+  protected String type = "None";                        // type of the object. If "none", the object is not specified.
 
 
   // Load data from file: "data\Entity.xml". More info about specification of the file can be found in Docs.
@@ -93,9 +93,9 @@ class Entity //<>//
         XML currentChildAttributeColor = currentChild.getChild("color");
         
         // Find a proper entity.
-        if ( !currentChild.hasAttribute("name") )  // entity doesn't contain "name" attribute - skip.
+        if ( !currentChild.hasAttribute("type") )  // entity doesn't contain "type" attribute - skip.
           break;
-        if ( currentChild.getString( "name" ).equals(name) ) // correct entity found. Then load it. // suggestion: change name to type
+        if ( currentChild.getString( "type" ).equals(type) ) // correct entity found. Then load it. // suggestion: change type to type
         {
           entityFound = true;
           PVector vertex = new PVector();        // Temporary variable for readability.
@@ -151,7 +151,7 @@ class Entity //<>//
     }
     if ( !entityFound )
     {
-      println("Cannot find \"" + name + "\" entity in file: \"Data\\Entities.xml\"");
+      println("Cannot find \"" + type + "\" entity in file: \"Data\\Entities.xml\"");
     }
     return false;
   } // loadDataFromFile
@@ -177,10 +177,10 @@ class Wall extends Entity
     }
   }
 
-  // Loads data from XML object. XML object must contain <entity name="Wall"> tag.
+  // Loads data from XML object. XML object must contain <entity type="Wall"> tag.
   private boolean loadData( XML data )
   {
-    if ( data == null || !data.hasAttribute("name") || !data.getString("name").equals("Wall") || data.getChildren("vertex") == null )
+    if ( data == null || !data.hasAttribute("type") || !data.getString("type").equals("Wall") || data.getChildren("vertex") == null )
       return false;
     
     PVector vertex = new PVector();             // Temporary variable for readability.
@@ -197,4 +197,10 @@ class Wall extends Entity
     }
     return true;
   }
+}
+
+class Tribute extends Entity
+{
+  private int health;
+  private float stamina;
 }
