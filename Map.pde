@@ -150,14 +150,14 @@ class Map
     XML[] data;
     if( (data = file.getChild("elements").getChildren("entity")) == null )   // Didn't find any <entity> tags.
       return true;
-    for ( int i = 0; i < data.length; i++ )
-    {
-      // Loading walls.
-     // if( data[ i ].hasAttribute("type") && data[ i ].getString("type").equals("Wall") )
+    //for ( int i = 0; i < data.length; i++ )
+    //{
+    //  // Loading walls.
+    //  if( data[ i ].hasAttribute("type") && data[ i ].getString("type").equals("Wall") )
     //  {
     //    entities.add(new Wall( data[ i ] ));
     //  }
-    }
+    //}
     return true;
   }
   

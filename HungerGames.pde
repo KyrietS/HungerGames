@@ -9,7 +9,7 @@ void settings() { // required to use variables inside the function size()
 void setup()
 {
   collision = new CollisionSystem();
-  collisionMesh = new CollisionMesh(10,10);
+  collisionMesh = new CollisionMesh(20,20);
   noStroke();
 }
 
@@ -37,11 +37,10 @@ void keyReleased()
 
 void draw()
 {
-  println(frameRate);
   map.displayAll();
   map.updateAll();
   map.moveToMouseALl();
-  //collisionMesh.displayMesh();
+  collisionMesh.displayMesh();
   if ( keyPressed )
   {
     if (key == 'r')

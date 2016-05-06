@@ -36,12 +36,13 @@ class Entity //<>// //<>//
   
   void update()
   {
-    CollisionCell[] inCells = collisionMesh.getCells(getTransformed());
+    CollisionCell[] inCells = collisionMesh.getCells(getTransformed()); // get data about which cells in the collision grid the entity is located in
     
     for(int i = 0; i < inCells.length; i++)
     {
-      inCells[i].removeEntity(ID); 
+      inCells[i].removeEntity(ID); // remove entities location from the cell, and add it back at the end of update() at new position
     }
+    
     int[] objectIds = new int[0];
     boolean isCollision = false;
     
@@ -49,7 +50,7 @@ class Entity //<>// //<>//
     {
       for(int j = 0; j < inCells[i].getObjectsIds().length;j++)
       {
-        objectIds = (int[])append(objectIds,inCells[i].getObjectsIds()[j]);
+        objectIds = (int[])append(objectIds,inCells[i].getObjectsIds()[j]);  // accumulate all the nearby objects by collecting data from all cells which the entity is in
       }
     }
     
@@ -59,15 +60,15 @@ class Entity //<>// //<>//
       
       if( collision.isCollision( currentEntity.getTransformed(), this.getTransformed() ) && ID != currentEntity.getID())
       { 
-        PVector toTarget = PVector.sub(pos,map.getEntity(i).getPos());
-        moveAt(toTarget);
+        PVector toTarget = PVector.sub(pos,currentEntity.getPos());  // calculate vector away from the colliding entity
+        moveAt(toTarget,5);
         if( tmpDebug )
         {
           color rand = color(random(0,255),random(0,255),random(0,255));
-          map.getEntity(i).settings.col = rand;
+          currentEntity.settings.col = rand;
           settings.col = rand;
           println("------------ Kolizja ------------");
-          map.getEntity(i).printDebug();
+          currentEntity.printDebug();
           this.printDebug();
           println("---------------------------------");
           tmpDebug = false;
@@ -80,9 +81,11 @@ class Entity //<>// //<>//
     
     pos.add(vel);
     
-    for(int i = 0; i < inCells.length; i++)
+    inCells = collisionMesh.getCells(getTransformed()); // update in which cells the entity is in
+    
+    for(int i = 0; i < inCells.length; i++) 
     {
-      inCells[i].addEntity(ID);; 
+      inCells[i].addEntity(ID); // add entities location to the cell at new position
     }
     
   }
@@ -113,9 +116,9 @@ class Entity //<>// //<>//
     resultantVector.limit(speedTemp);
     vel.set(resultantVector);
   }
-  void moveAt(PVector dir)
+  void moveAt(PVector dir,float speedMult)
   {
-    float speedTemp = speed;
+    float speedTemp = speed * speedMult;
     speedTemp /= frameRate;
     dir.normalize();
     dir.mult(speedTemp);
