@@ -21,6 +21,12 @@ class Map
       entities.remove(location); // deletes entity with the unique id
   }
   
+  void removeEntityByLocation( int location)
+  {
+    if(location != -1 && !entities.get(location).getEntityType().equals("Wall")) // for now just delete class "Box" so as not to delete walls
+      entities.remove(location); // deletes entity with the unique id
+  }
+  
   void removeEntity( Entity e)
   {
     int location = findEntityLocationByID(e.ID);
