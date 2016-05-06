@@ -17,14 +17,14 @@ class Map
   void removeEntity( int ID )
   {
     int location = findEntityLocationByID(ID);
-    if(location != -1 && entities.get(location).getEntityType().equals("Box")) // for now just delete class "Box" so as not to delete walls
+    if(location != -1 && !entities.get(location).getEntityType().equals("Wall")) // for now just delete class "Box" so as not to delete walls
       entities.remove(location); // deletes entity with the unique id
   }
   
   void removeEntity( Entity e)
   {
     int location = findEntityLocationByID(e.ID);
-    if(location != -1 && entities.get(location).getEntityType().equals("Box")) // for now just delete class "Box" so as not to delete walls
+    if(location != -1 && !entities.get(location).getEntityType().equals("Wall")) // for now just delete class "Box" so as not to delete walls
       entities.remove(location); 
   }
   
@@ -52,15 +52,32 @@ class Map
     }
     return location; // if no entity at pos return -1
   }
+  
   void displayAll()
   {
     image(image, 0, 0); 
     for (int i = 0; i < entities.size(); i++)
     {
-      entities.get(i).display();
+      entities.get(i).display(); 
     }
+  } 
+  
+  void updateAll()
+  {
+    for(int i = 0; i < entities.size(); i++)
+    {
+      entities.get(i).update();
+    }  
   }
-
+  
+  void moveToMouseALl()
+  {
+    for(int i = 0; i < entities.size(); i++)
+    {
+      entities.get(i).moveToPos(mouseX,mouseY);
+    }  
+  }
+  
   void setColor(color Color)
   {
     image.loadPixels();
@@ -70,6 +87,7 @@ class Map
     }
     image.updatePixels();
   }
+  
   private color backgroundColor;
   private PImage image;
   private PVector dimensions;
@@ -102,15 +120,7 @@ class Map
     if( settings.getChild("background-color") != null) // if find tag <background-color>
     {
        String hexColor = settings.getChild("background-color").getString("value");  // Loads color to string. For example: "#FF44BB".
-       if ( hexColor.charAt(0) == '#')        // Checks if first character is '#'. It means that we have hex-style color.
-       {
-         try                                  // Try to convert R, G and B partf from hex-style color. For example: FF, 44, 88 (R, G, B).
-         {
-           backgroundColor = color( unhex(hexColor.substring(1, 3)), unhex(hexColor.substring(3, 5)), unhex(hexColor.substring(5, 7)) );
-         }
-         catch( Exception e) {               // Problem with converting. Do nothing.
-         }
-       }
+       backgroundColor = toRGB(hexColor);
     }
     
     if( settings.getChild("debug-mode") != null) // if find tag <debug-mode>
@@ -124,7 +134,7 @@ class Map
     for ( int i = 0; i < data.length; i++ )
     {
       // Loading walls.
-      if( data[ i ].hasAttribute("name") && data[ i ].getString("name").equals("Wall") )
+      if( data[ i ].hasAttribute("type") && data[ i ].getString("type").equals("Wall") )
       {
         entities.add(new Wall( data[ i ] ));
       }
