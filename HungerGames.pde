@@ -20,7 +20,7 @@ void draw()
    return;
     if (key == 'r')
     {
-      int location = map.findEntityLocationByPos(mouseX, mouseY);
+      int location = map.getEntityLocationFromPos(mouseX, mouseY);
       if (location != -1 )
         map.removeEntityByLocation(location);
     } 

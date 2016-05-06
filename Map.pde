@@ -16,7 +16,7 @@ class Map
   
   void removeEntity( int ID )
   {
-    int location = findEntityLocationByID(ID);
+    int location = getEntityLocationFromID(ID);
     if(location != -1 && !entities.get(location).getEntityType().equals("Wall")) // for now just delete class "Box" so as not to delete walls
       entities.remove(location); // deletes entity with the unique id
   }
@@ -29,12 +29,12 @@ class Map
   
   void removeEntity( Entity e)
   {
-    int location = findEntityLocationByID(e.ID);
+    int location = getEntityLocationFromID(e.ID);
     if(location != -1 && !entities.get(location).getEntityType().equals("Wall")) // for now just delete class "Box" so as not to delete walls
       entities.remove(location); 
   }
-  
-  int findEntityLocationByID(int ID)
+
+  int getEntityLocationFromID(int ID)
   {
     int location = -1; //the default value, acts like null as int cannot be null
     for (int i = 0; i < entities.size(); i++)
@@ -46,7 +46,7 @@ class Map
     return location; // if no entity with such ID return -1
   }
   
-  int findEntityLocationByPos(float x, float y)
+  int getEntityLocationFromPos(float x, float y)
   {
     PVector pos = new PVector(x,y);
     int location = -1;
