@@ -7,7 +7,7 @@
 		<debug-mode value="true" />
 	</configuration>
 	<elements>
-		<entity name="Wall">
+		<entity type="Wall">
 			<vertex x="0" y="0" />
 			<vertex x="0" y="600" />
 			<vertex x="800" y="600" />

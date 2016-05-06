@@ -13,16 +13,13 @@ void setup()
 void draw()
 {
   map.displayAll();
-  for(int i = 0; i < map.entities.size(); i++)
-  {
-    map.entities.get(i).moveTowards(mouseX,mouseY,10);
-    map.entities.get(i).update();
-  }
+  map.updateAll();
+  map.moveToMouseALl();
   if(mousePressed)
   {
     if(mouseButton == LEFT)
     {
-      map.addEntity( new Entity( "Box", mouseX, mouseY ) );
+      map.addEntity( new Tribute( mouseX, mouseY ) );
  
     } else if(mouseButton == RIGHT)
     {

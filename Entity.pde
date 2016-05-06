@@ -19,6 +19,7 @@ class Entity //<>//
     settings.applySettings();
     pushMatrix();
     translate( pos.x, pos.y );
+    scale(5);
     beginShape();
     
     for ( int i = 0; i < vertices.size(); i++ )
@@ -27,7 +28,7 @@ class Entity //<>//
     }
     
     endShape(CLOSE);
-    popMatrix();
+    popMatrix();    
   }
   
   void update()
@@ -35,14 +36,22 @@ class Entity //<>//
     pos.add(vel);
   }
   
-  void moveTowards(float x, float y, float speed)
+  void moveToPos(float x, float y)
   {
-    speed/= frameRate;
+    
+    if( dist(x,y,pos.x,pos.y) < 0.1) // check if arrived at target
+    {
+     vel.set(0,0);
+     return;
+    }
+    
+    float speedTemp = speed;
+    speedTemp/= frameRate;
     PVector targetPos = new PVector(x,y);
     PVector resultantVector = PVector.sub(targetPos,pos);
     resultantVector.normalize();
-    resultantVector.mult(speed * random(0.5,1.5));
-    resultantVector.limit(speed);
+    resultantVector.mult(speedTemp * random(0.5,1.5));
+    resultantVector.limit(speedTemp);
     vel.set(resultantVector);
   }
   
@@ -61,12 +70,16 @@ class Entity //<>//
   {
     pos = v;
   }
-  
+  int getID()
+  {
+    return ID; 
+  }
   String getEntityType(){
    return type; 
   }
   
   private int ID;
+  protected float speed = 10;
   protected PVector pos = new PVector(0, 0);              // Position of the object on the map. (Anchor point)
   protected PVector vel = new PVector(0, 0);              // velocity of the object
   protected ArrayList< PVector > vertices = new ArrayList< PVector >();
@@ -113,15 +126,7 @@ class Entity //<>//
           if ( currentChildAttributeColor != null && currentChildAttributeColor.hasAttribute("value") )
           {
             String hexColor = currentChildAttributeColor.getString("value");  // Loads color to string. For example: "#FF44BB".
-            if ( hexColor.charAt(0) == '#')        // Checks if first character is '#'. It means that we have hex-style color.
-            {
-              try                                  // Try to convert R, G and B partf from hex-style color. For example: FF, 44, 88 (R, G, B).
-              {
-                settings.col = color( unhex(hexColor.substring(1, 3)), unhex(hexColor.substring(3, 5)), unhex(hexColor.substring(5, 7)) );
-              }
-              catch( Exception e) {               // Problem with converting. Do nothing.
-              }
-            }
+            settings.col = toRGB(hexColor);
           }
           
           // Loading vertices.
@@ -201,6 +206,46 @@ class Wall extends Entity
 
 class Tribute extends Entity
 {
+  Tribute(int x,int y)
+  {
+    super("Tribute",x,y);
+    super.loadFromFile();
+    health = 100;
+    stamina = 100;
+  }
+  
+  void moveToPos(float x, float y)
+  {
+    if(stamina < 0)
+       speed = 0;
+    else
+      speed = 10; 
+      if(vel.mag() != 0) // if not moving dont use stamina
+      {
+        stamina -= speed/frameRate;
+      } 
+        
+    super.moveToPos(x,y);
+  }
+  
+  void update()
+  {
+    if(health < 0)
+    {
+      map.removeEntity(getID()); 
+    }
+    super.update();
+    stamina += 9/frameRate; // 10 is the walking speed, only use a small amount of stamina for walking by replenishing 9 instead of 10
+    stamina = clamp(stamina,-20,100);
+  }
+  
+  void display()
+  {
+    super.display();
+    textSize(10);
+    text(health,pos.x - 10,pos.y - 15);
+  }
+  
   private int health;
   private float stamina;
 }
