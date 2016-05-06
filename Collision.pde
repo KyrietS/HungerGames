@@ -3,6 +3,7 @@ class CollisionMesh
   CollisionMesh(float xBoxes , float yBoxes)
   {
     size.set(xBoxes,yBoxes);
+    boxSize = new PVector(width/size.x,height/size.y);
     for(int y = 0; y < size.y; y++)
     {
       for(int x = 0; x < size.x; x++)
@@ -38,9 +39,9 @@ class CollisionMesh
   }
   int get1dLocation(float x, float y)
   {
-    float xBox = round(map(x,0,width,1,size.x));
-    float yBox = round(map(y,0,height,1,size.y));
-    int location = int(xBox * collisionMesh.size.x + yBox);
+    float xBox = floor(x / boxSize.x);
+    float yBox = floor(y / boxSize.y);
+    int location = int(xBox + collisionMesh.size.x * yBox);
     return location;
  }
   
@@ -50,15 +51,17 @@ class CollisionMesh
     {
       CollisionCell currentCell = cells[i];
       PVector pos = currentCell.getPos();
-      currentCell.settings.applySettings();
-      rect(pos.x,pos.y,boxSize.x,boxSize.y);
-
+      if(currentCell.entityIds.size() > 0)
+      {
+        currentCell.settings.applySettings();
+        rect(pos.x,pos.y,boxSize.x,boxSize.y);
+      }
     }
   }
   
   private CollisionCell[] cells = new CollisionCell[0]; 
   private PVector size = new PVector(10,10); // number of boxes across width and height
-  private PVector boxSize = new PVector(width/size.x,height/size.y);
+  private PVector boxSize;
 }
 
 class CollisionCell
