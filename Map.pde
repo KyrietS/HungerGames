@@ -17,14 +17,14 @@ class Map
   void removeEntity( int ID )
   {
     int location = findEntityLocationByID(ID);
-    if(location != -1 && entities.get(location).getEntityName().equals("Box")) // for now just delete class "Box" so as not to delete walls
+    if(location != -1 && entities.get(location).getEntityType().equals("Box")) // for now just delete class "Box" so as not to delete walls
       entities.remove(location); // deletes entity with the unique id
   }
   
   void removeEntity( Entity e)
   {
     int location = findEntityLocationByID(e.ID);
-    if(location != -1 && entities.get(location).getEntityName().equals("Box")) // for now just delete class "Box" so as not to delete walls
+    if(location != -1 && entities.get(location).getEntityType().equals("Box")) // for now just delete class "Box" so as not to delete walls
       entities.remove(location); 
   }
   

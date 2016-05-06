@@ -17,9 +17,9 @@ private class Settings
     strokeJoin( edge );       // setting: line edge 
   }
   
-  protected color col;                         // Setting: fill color.
-  protected float bold;                        // Setting: line weight.
-  protected color strokeCol;                   // line color
-  protected int edge;                          // Setting: line edge style.
-  protected int cap;                           // Setting: line cap style.
+  protected color col = #000000;                         // Setting: fill color.
+  protected float bold = 1;                        // Setting: line weight.
+  protected color strokeCol = #000000;                   // line color
+  protected int edge = MITER;                          // Setting: line edge style.
+  protected int cap = PROJECT;                           // Setting: line cap style.
 }
