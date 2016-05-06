@@ -19,7 +19,7 @@ class Entity //<>//
     settings.applySettings();
     pushMatrix();
     translate( pos.x, pos.y );
-    scale(5);
+    scale(3);
     beginShape();
     
     for ( int i = 0; i < vertices.size(); i++ )
