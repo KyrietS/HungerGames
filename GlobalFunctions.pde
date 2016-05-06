@@ -17,6 +17,19 @@ float clamp(float value, float min , float max)
   return value;
 }
 
+PVector clamp(PVector value, float minX, float maxX, float minY, float maxY)
+{
+  if(value.x > maxX)
+   value.x = maxX;
+  else if(value.x < minX)
+   value.x = minX;
+  if(value.y > maxY)
+   value.y = maxY;
+  else if(value.y < minY)
+   value.y = minY;
+  return value;
+}
+
 color toRGB(String hexColor) // convert hex to RGB
 {
   color col = color(255,0,0); // set col as red in case of exception

@@ -44,10 +44,10 @@ class Entity //<>//
      vel.set(0,0);
      return;
     }
-    
     float speedTemp = speed;
     speedTemp/= frameRate;
     PVector targetPos = new PVector(x,y);
+    targetPos.set(clamp(targetPos,0,width,0,height)); // clamp the position to the screen, efficient edge detection :)
     PVector resultantVector = PVector.sub(targetPos,pos);
     resultantVector.normalize();
     resultantVector.mult(speedTemp * random(0.5,1.5));
@@ -62,13 +62,12 @@ class Entity //<>//
 
   void setPos( float x, float y )
   {
-    pos.x = x;
-    pos.y = y;
+    pos.set(x,y);
   }
 
   void setPos( PVector v )
   {
-    pos = v;
+    pos.set(v);
   }
   int getID()
   {
@@ -243,7 +242,7 @@ class Tribute extends Entity
   {
     super.display();
     textSize(10);
-    text(health,pos.x - 10,pos.y - 15);
+    text(getID(),pos.x - 10,pos.y - 15);
   }
   
   private int health;
