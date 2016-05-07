@@ -10,7 +10,8 @@ class Map
 
   void addEntity( Entity e )
   {
-    e.ID = entities.size();
+    int newID = findMax(entities) + 1;
+    e.ID = newID;
     entities.add( e );
   }
   
