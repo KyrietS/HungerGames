@@ -1,4 +1,4 @@
-class Entity //<>// //<>//
+class Entity //<>// //<>// //<>//
 {
   Settings settings = new Settings(#000000,#000000,1,MITER,PROJECT);
   CollisionSystem collision = new CollisionSystem();
@@ -40,7 +40,7 @@ class Entity //<>// //<>//
     boolean isCollision = false;
     for( int i = 0; i < map.countEntities(); i++ )
     {
-      if( collision.isCollision( map.getEntity(i).getTransformed(), this.getTransformed() ) && ID != map.getEntity(i).getID() )
+      if( collision.isCollision( map.getEntity(i).getTransformed(), this.getTransformed() ) && ID != map.getEntity(i).getID())
       {
         if( tmpDebug )
         {
@@ -94,8 +94,7 @@ class Entity //<>// //<>//
     {
       vertex = new PVector( vertices.get(i).x, vertices.get(i).y );
       vertex.sub( anchorPoint );
-      vertex.x *= scale;
-      vertex.y *= scale;
+      vertex.mult(scale);
       vertex.add( anchorPoint );
       vertex.add( pos );
       transformedVertices.add( new PVector( vertex.x, vertex.y ) );
@@ -255,7 +254,6 @@ class Tribute extends Entity
   Tribute(int x,int y)
   {
     super("Tribute",x,y);
-    super.loadFromFile();
     health = 100;
     stamina = 100;
   }

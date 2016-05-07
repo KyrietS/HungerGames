@@ -153,10 +153,10 @@ class Map
     for ( int i = 0; i < data.length; i++ )
     {
       // Loading walls.
-      if( data[ i ].hasAttribute("type") && data[ i ].getString("type").equals("Wall") )
-      {
-        entities.add(new Wall( data[ i ] ));
-      }
+     // if( data[ i ].hasAttribute("type") && data[ i ].getString("type").equals("Wall") )
+    //  {
+    //    entities.add(new Wall( data[ i ] ));
+    //  }
     }
     return true;
   }
