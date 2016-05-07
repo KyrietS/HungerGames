@@ -44,3 +44,16 @@ color toRGB(String hexColor) // convert hex to RGB
     } 
   return col;
 }
+
+int findMax(ArrayList<Entity> array) // for finding highest ID
+{
+  int max = 0;
+  for(int i = 0 ; i < array.size();i++)
+  {
+    if(array.get(i).getID() > max)
+    {
+      max = array.get(i).getID();
+    }
+  }
+  return max;
+}
