@@ -17,9 +17,19 @@ class Map
   
   void removeEntity( int ID )
   {
-    int location = getEntityLocationFromID(ID);
+    int location = getEntityIndexById(ID);
     if(location != -1 && !entities.get(location).getEntityType().equals("Wall")) // for now just delete class "Box" so as not to delete walls
       entities.remove(location); // deletes entity with the unique id
+  }
+  
+  Entity getEntity( int index )
+  {
+    return entities.get( index );
+  }
+  
+  int countEntities()
+  {
+    return entities.size();
   }
   
   void removeEntityByLocation( int location)
@@ -30,12 +40,12 @@ class Map
   
   void removeEntity( Entity e)
   {
-    int location = getEntityLocationFromID(e.ID);
+    int location = getEntityIndexById(e.ID);
     if(location != -1 && !entities.get(location).getEntityType().equals("Wall")) // for now just delete class "Box" so as not to delete walls
       entities.remove(location); 
   }
 
-  int getEntityLocationFromID(int ID)
+  int getEntityIndexById(int ID)
   {
     int location = -1; //the default value, acts like null as int cannot be null
     for (int i = 0; i < entities.size(); i++)
@@ -47,7 +57,7 @@ class Map
     return location; // if no entity with such ID return -1
   }
   
-  int getEntityLocationFromPos(float x, float y)
+  int getEntityIndexByPos(float x, float y)
   {
     PVector pos = new PVector(x,y);
     int location = -1;
@@ -59,6 +69,8 @@ class Map
     }
     return location; // if no entity at pos return -1
   }
+  
+  
   
   void displayAll()
   {
@@ -95,10 +107,10 @@ class Map
     image.updatePixels();
   }
   
+  private ArrayList<Entity> entities = new ArrayList<Entity>();
   private color backgroundColor;
   private PImage image;
   private PVector dimensions;
-  private ArrayList<Entity> entities = new ArrayList<Entity>();
   private boolean debugMode;
   
   private boolean loadFromFile()
