@@ -1,11 +1,24 @@
 class CollisionMesh
 {
   
+  CollisionCell[] cells; 
 }
 
 class CollisionCell
 {
-  
+  PVector vertexLeftUp,vertexRightDown;
+  IntList entityIds;
+  CollisionCell(PVector leftUp,PVector rightDown)
+  {
+    vertexLeftUp.set(leftUp);
+    vertexRightDown.set(rightDown);
+    entityIds = new IntList();
+  }
+  int[] getObjects()
+  {
+    int[] array = entityIds.array();
+    return(array);
+  }
 }
 
 class CollisionSystem
