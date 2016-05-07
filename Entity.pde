@@ -35,7 +35,17 @@ class Entity //<>// //<>//
   
   void update()
   {
-    pos.add(vel);
+    boolean isCollision = false;
+    for( int i = 0; i < map.countEntities(); i++ )
+    {
+      if( collision.isCollision( map.getEntity(i).getTransformed(), this.getTransformed() ) && map.getEntity( map.getEntityIndexById(ID) ).getID() != map.getEntity(i).getID() )
+      {
+        isCollision = true;
+        break;
+      }
+    }
+    if( !isCollision )
+      pos.add(vel);
   }
   
   void moveToPos(float x, float y)
