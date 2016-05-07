@@ -2,8 +2,6 @@
 class Entity //<>// //<>//
 {
   Settings settings = new Settings(#000000,#000000,1,MITER,PROJECT);
-  CollisionSystem collision = new CollisionSystem();
-  
   Entity(String _type, int x, int y)
   {
     pos.set(x, y);
@@ -38,12 +36,31 @@ class Entity //<>// //<>//
   
   void update()
   {
-    boolean isCollision = false;
-    for( int i = 0; i < map.countEntities(); i++ )
+    CollisionCell[] inCells = collisionMesh.getCells(getTransformed());
+    
+    for(int i = 0; i < inCells.length; i++)
     {
-      if( collision.isCollision( map.getEntity(i).getTransformed(), this.getTransformed() ) && ID != map.getEntity(i).getID())
+      inCells[i].removeEntity(ID); 
+    }
+    int[] objectIds = new int[0];
+    boolean isCollision = false;
+    
+    for(int i = 0; i < inCells.length; i++)
+    {
+      for(int j = 0; j < inCells[i].getObjectsIds().length;j++)
+      {
+        objectIds = (int[])append(objectIds,inCells[i].getObjectsIds()[j]);
+      }
+    }
+    
+    for( int i = 0; i < objectIds.length; i++ )
+    {
+      Entity currentEntity = map.getEntity(map.getEntityIndexById(objectIds[i]));
+      
+      if( collision.isCollision( currentEntity.getTransformed(), this.getTransformed() ) && ID != currentEntity.getID())
       { 
-
+        PVector toTarget = PVector.sub(pos,map.getEntity(i).getPos());
+        moveAt(toTarget);
         if( tmpDebug )
         {
           color rand = color(random(0,255),random(0,255),random(0,255));
@@ -60,8 +77,14 @@ class Entity //<>// //<>//
         break;
       }
     }
-    if( !isCollision )
-      pos.add(vel);
+    
+    pos.add(vel);
+    
+    for(int i = 0; i < inCells.length; i++)
+    {
+      inCells[i].addEntity(ID);; 
+    }
+    
   }
   
   void printDebug()
@@ -90,7 +113,15 @@ class Entity //<>// //<>//
     resultantVector.limit(speedTemp);
     vel.set(resultantVector);
   }
-  
+  void moveAt(PVector dir)
+  {
+    float speedTemp = speed;
+    speedTemp /= frameRate;
+    dir.normalize();
+    dir.mult(speedTemp);
+    dir.limit(speedTemp);
+    vel.set(dir);
+  }
   ArrayList< PVector > getTransformed()
   {
     PVector vertex;
