@@ -1,3 +1,13 @@
+class CollisionMesh
+{
+  
+}
+
+class CollisionCell
+{
+  
+}
+
 class CollisionSystem
 {
 
