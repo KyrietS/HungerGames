@@ -33,19 +33,38 @@ class Entity //<>// //<>//
     //popMatrix();    
   }
   
+  boolean tmpDebug = true;
+  
   void update()
   {
     boolean isCollision = false;
     for( int i = 0; i < map.countEntities(); i++ )
     {
-      if( collision.isCollision( map.getEntity(i).getTransformed(), this.getTransformed() ) && map.getEntity( map.getEntityIndexById(ID) ).getID() != map.getEntity(i).getID() )
+      if( collision.isCollision( map.getEntity(i).getTransformed(), this.getTransformed() ) && ID != map.getEntity(i).getID() )
       {
+        if( tmpDebug )
+        {
+          println("------------ Kolizja ------------");
+          map.getEntity(i).printDebug();
+          this.printDebug();
+          println("---------------------------------");
+          tmpDebug = false;
+        }
+        
         isCollision = true;
         break;
       }
     }
     if( !isCollision )
       pos.add(vel);
+  }
+  
+  void printDebug()
+  {
+    for( int i = 0; i < vertices.size(); i++ )
+    {
+      println( "(" + ID + ") vert " + i + "(" + getTransformed().get(i).x + "," + getTransformed().get(i).y + ")");
+    }
   }
   
   void moveToPos(float x, float y)
@@ -74,11 +93,11 @@ class Entity //<>// //<>//
     for( int i = 0; i < vertices.size(); i++ )
     {
       vertex = new PVector( vertices.get(i).x, vertices.get(i).y );
-      vertex = vertex.sub( anchorPoint );
+      vertex.sub( anchorPoint );
       vertex.x *= scale;
       vertex.y *= scale;
-      vertex = vertex.add( anchorPoint );
-      vertex = vertex.add( pos );
+      vertex.add( anchorPoint );
+      vertex.add( pos );
       transformedVertices.add( new PVector( vertex.x, vertex.y ) );
     }
     return transformedVertices;
