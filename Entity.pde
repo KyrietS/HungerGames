@@ -1,4 +1,5 @@
-class Entity //<>// //<>// //<>//
+ //<>//
+class Entity //<>// //<>//
 {
   Settings settings = new Settings(#000000,#000000,1,MITER,PROJECT);
   CollisionSystem collision = new CollisionSystem();
@@ -41,9 +42,13 @@ class Entity //<>// //<>// //<>//
     for( int i = 0; i < map.countEntities(); i++ )
     {
       if( collision.isCollision( map.getEntity(i).getTransformed(), this.getTransformed() ) && ID != map.getEntity(i).getID())
-      {
+      { 
+
         if( tmpDebug )
         {
+          color rand = color(random(0,255),random(0,255),random(0,255));
+          map.getEntity(i).settings.col = rand;
+          settings.col = rand;
           println("------------ Kolizja ------------");
           map.getEntity(i).printDebug();
           this.printDebug();
