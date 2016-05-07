@@ -64,7 +64,7 @@ class Map
     for (int i = 0; i < entities.size(); i++)
     {
       Entity currentEntity = entities.get(i);
-      if(dist(currentEntity.pos.x,currentEntity.pos.y,pos.x,pos.y) < 14) // checks if the entity is "close". to be added: proper collision detection 
+      if(collision.checkContaining(currentEntity.getTransformed(),new PVector(mouseX,mouseY))) // checks if the entity is "close". to be added: proper collision detection 
         location = i; // return location
     }
     return location; // if no entity at pos return -1

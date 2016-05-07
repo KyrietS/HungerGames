@@ -1,5 +1,6 @@
 Map map;
-
+CollisionSystem collision;
+CollisionMesh collisionMesh;
 void settings() { // required to use variables inside the function size()
   map = new Map();  
   size(int(map.dimensions.x), int(map.dimensions.y));
@@ -7,6 +8,8 @@ void settings() { // required to use variables inside the function size()
 
 void setup()
 {
+  collision = new CollisionSystem();
+  collisionMesh = new CollisionMesh(10,10);
   noStroke();
 }
 
@@ -34,10 +37,11 @@ void keyReleased()
 
 void draw()
 {
+  println(frameRate);
   map.displayAll();
   map.updateAll();
   map.moveToMouseALl();
-
+  //collisionMesh.displayMesh();
   if ( keyPressed )
   {
     if (key == 'r')

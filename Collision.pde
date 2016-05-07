@@ -1,24 +1,104 @@
 class CollisionMesh
 {
+  CollisionMesh(float xBoxes , float yBoxes)
+  {
+    size.set(xBoxes,yBoxes);
+    for(int y = 0; y < size.y; y++)
+    {
+      for(int x = 0; x < size.x; x++)
+      {
+        PVector leftUp = new PVector(boxSize.x * x,boxSize.y * y);
+        PVector rightDown = new PVector(boxSize.x * (x + 1),boxSize.y * (y + 1));
+        cells = (CollisionCell[])append(cells, new CollisionCell(leftUp,rightDown));
+      }
+    }
+  }
   
-  CollisionCell[] cells; 
+  CollisionCell[] getCells(ArrayList<PVector> vertices)
+  {
+    CollisionCell[] inCells = new CollisionCell[0];
+    for(int i = 0; i < vertices.size(); i++)
+    {
+      PVector pos = vertices.get(i);
+      int location = get1dLocation(pos.x,pos.y);
+      location = clamp(location,0,int(size.x * size.y) - 1);
+      inCells = (CollisionCell[])append(inCells, cells[location]);
+      for(int j = 0; j < inCells.length - 1;j++)
+      {
+        if(inCells[j].getPos() == inCells[inCells.length - 1].getPos())
+        {
+          inCells = (CollisionCell[])shorten(inCells);
+        }
+      }
+    }
+    return inCells;
+  }
+  CollisionCell getCell(float x,float y){
+    return(cells[get1dLocation(x,y)]);
+  }
+  int get1dLocation(float x, float y)
+  {
+    float xBox = round(map(x,0,width,1,size.x));
+    float yBox = round(map(y,0,height,1,size.y));
+    int location = int(xBox * collisionMesh.size.x + yBox);
+    return location;
+ }
+  
+  void displayMesh()
+  {
+    for(int i = 0; i < size.x * size.y; i++)
+    {
+      CollisionCell currentCell = cells[i];
+      PVector pos = currentCell.getPos();
+      currentCell.settings.applySettings();
+      rect(pos.x,pos.y,boxSize.x,boxSize.y);
+
+    }
+  }
+  
+  private CollisionCell[] cells = new CollisionCell[0]; 
+  private PVector size = new PVector(10,10); // number of boxes across width and height
+  private PVector boxSize = new PVector(width/size.x,height/size.y);
 }
 
 class CollisionCell
 {
-  PVector vertexLeftUp,vertexRightDown;
-  IntList entityIds;
+  Settings settings = new Settings();
   CollisionCell(PVector leftUp,PVector rightDown)
   {
     vertexLeftUp.set(leftUp);
     vertexRightDown.set(rightDown);
     entityIds = new IntList();
+    settings.col = color(5,5,5,0);
+    settings.strokeCol = color(0);
+    settings.fill = true;
   }
-  int[] getObjects()
+  
+  int[] getObjectsIds()
   {
     int[] array = entityIds.array();
     return(array);
   }
+  
+  PVector getPos()
+  {
+    return(vertexLeftUp);
+  }
+  
+  void addEntity(int ID)
+  {
+    entityIds.append(ID);
+  }
+  void removeEntity(int ID)
+  {
+    for(int i = 0; i < entityIds.size(); i++)
+    {
+      if(entityIds.get(i) == ID)
+        entityIds.remove(i);
+    }
+  } 
+  private PVector vertexLeftUp = new PVector(0,0),vertexRightDown = new PVector(0,0);
+  private IntList entityIds;
 }
 
 class CollisionSystem
