@@ -55,8 +55,8 @@ class CollisionSystem
 
   private boolean checkIntersection( ArrayList< PVector > shape1, ArrayList< PVector > shape2 )
   {
-    shape1.add( shape1.get( 0 ) );
-    shape2.add( shape2.get( 0 ) );
+    shape1.add( new PVector( shape1.get( 0 ).x, shape1.get(0).y ) );
+    shape2.add( new PVector( shape2.get( 0 ).x, shape2.get(0).y ) );
     
     // Chechks if point lies on an edge.
     for( int i = 0; i < shape1.size()-1; i++ )
