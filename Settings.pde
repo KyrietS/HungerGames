@@ -17,6 +17,7 @@ private class Settings
     strokeJoin( edge );       // setting: line edge 
   }
   
+  
   protected color col = #000000;                         // Setting: fill color.
   protected float bold = 1;                        // Setting: line weight.
   protected color strokeCol = #000000;                   // line color

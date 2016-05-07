@@ -1,6 +1,8 @@
-class Entity //<>//
+class Entity //<>// //<>//
 {
   Settings settings = new Settings(#000000,#000000,1,MITER,PROJECT);
+  CollisionSystem collision = new CollisionSystem();
+  
   Entity(String _type, int x, int y)
   {
     pos.set(x, y);
@@ -17,18 +19,18 @@ class Entity //<>//
   void display() // Draw an object on the screen.
   {
     settings.applySettings();
-    pushMatrix();
-    translate( pos.x, pos.y );
-    scale(3);
+    //pushMatrix();
+    //translate( pos.x, pos.y );
+    //scale(settings.scale);
     beginShape();
     
     for ( int i = 0; i < vertices.size(); i++ )
     {
-      vertex( vertices.get( i ).x, vertices.get(i).y );
+      vertex( getTransformed().get( i ).x, getTransformed().get(i).y );
     }
     
     endShape(CLOSE);
-    popMatrix();    
+    //popMatrix();    
   }
   
   void update()
@@ -55,16 +57,31 @@ class Entity //<>//
     vel.set(resultantVector);
   }
   
+  ArrayList< PVector > getTransformed()
+  {
+    PVector vertex;
+    ArrayList< PVector > transformedVertices = new ArrayList< PVector >();
+    for( int i = 0; i < vertices.size(); i++ )
+    {
+      vertex = new PVector( vertices.get(i).x, vertices.get(i).y );
+      vertex = vertex.sub( anchorPoint );
+      vertex.x *= scale;
+      vertex.y *= scale;
+      vertex = vertex.add( anchorPoint );
+      vertex = vertex.add( pos );
+      transformedVertices.add( new PVector( vertex.x, vertex.y ) );
+    }
+    return transformedVertices;
+  }
+  
   PVector getPos()
   {
     return pos;
   }
-
   void setPos( float x, float y )
   {
     pos.set(x,y);
   }
-
   void setPos( PVector v )
   {
     pos.set(v);
@@ -79,6 +96,8 @@ class Entity //<>//
   
   private int ID;
   protected float speed = 10;
+  protected float scale = 3.0;
+  protected PVector anchorPoint = new PVector(0,0);
   protected PVector pos = new PVector(0, 0);              // Position of the object on the map. (Anchor point)
   protected PVector vel = new PVector(0, 0);              // velocity of the object
   protected ArrayList< PVector > vertices = new ArrayList< PVector >();
@@ -111,7 +130,6 @@ class Entity //<>//
         {
           entityFound = true;
           PVector vertex = new PVector();        // Temporary variable for readability.
-          PVector anchorPoint = new PVector();   // Temporary variable for readability.
 
           // Loading anchor point.
           if ( currentChildAttributeAnchorPoint != null && currentChildAttributeAnchorPoint.hasAttribute("x") && 
