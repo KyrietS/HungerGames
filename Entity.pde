@@ -288,19 +288,14 @@ class Tribute extends Entity
     else
       speed = 10; 
     if (vel.mag() != 0) // if not moving dont use stamina
-    {
       stamina -= speed/frameRate;
-    } 
-
     super.moveToPos(x, y);
   }
 
   void update()
   {
     if (health < 0)
-    {
       map.removeEntity(getID());
-    }
     super.update();
     stamina += 9/frameRate; // 10 is the walking speed, only use a small amount of stamina for walking by replenishing 9 instead of 10
     stamina = clamp(stamina, -20, 100);
