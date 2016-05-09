@@ -31,14 +31,14 @@ PVector clamp(PVector value, float minX, float maxX, float minY, float maxY)
   return value;
 }
 
-color toRGB(String hexColor) // convert hex to RGB
+color toRGB(String hexColor, float alpha) // convert hex to RGB
 {
   color col = color(255,0,0); // set col as red in case of exception
   if ( hexColor.charAt(0) == '#')        // Checks if first character is '#'. It means that we have hex-style color.
   {
     try                                  // Try to convert R, G and B partf from hex-style color. For example: FF, 44, 88 (R, G, B).
     {
-      col = color( unhex(hexColor.substring(1, 3)), unhex(hexColor.substring(3, 5)), unhex(hexColor.substring(5, 7)) );
+      col = color( unhex(hexColor.substring(1, 3)), unhex(hexColor.substring(3, 5)), unhex(hexColor.substring(5, 7)),alpha );
     }
     catch( Exception e) {               // Problem with converting. leave color as red
     }

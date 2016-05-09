@@ -73,6 +73,13 @@ class Mesh
   
   void displayVertices()
   {
+    beginShape();
+    for(int i = 0; i < vertices.size();i++)
+    {
+      fill(col);
+      vertex(getTransformedPos(vertices.get(i).getPos()).x,getTransformedPos(vertices.get(i).getPos()).y);
+    }
+    endShape(CLOSE);
     for (int i = 0; i < vertices.size(); i++)
     {
       PVector posFirst = getTransformedPos(vertices.get(0).getPos()); 
@@ -81,15 +88,16 @@ class Mesh
       stroke(150,0,0);
       if(i < vertices.size() - 1)
       {
+
         PVector posNext = getTransformedPos(vertices.get(i + 1).getPos()); 
 
         line(pos.x,pos.y,posNext.x,posNext.y);
       }
       else
-       //stroke(255,0,0);
        line(pos.x,pos.y,posFirst.x,posFirst.y);
       text(i,pos.x -4,pos.y-6);
     }
+
   }
   
   void moveVertex(float x, float y)
