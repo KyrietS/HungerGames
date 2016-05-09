@@ -29,7 +29,16 @@ class Mesh
 
   void addVertex(PVector vert) // local to centre of the mesh
   {
-    vertices.add(vert);
+    boolean isOccupied = false;
+    for (int i = 0; i < vertices.size(); i++)
+    {
+      if (PVector.sub(getTransformedPos(vertices.get(i)),getTransformedPos(vert)).mag() == 0)
+      {
+        isOccupied = true;
+      }      
+    }
+    if(!isOccupied)
+      vertices.add(vert);
   }
 
   void removeVertex(PVector pos) // local
@@ -65,12 +74,12 @@ class Mesh
     for (int i = 0; i < vertices.size(); i++)
     {
       fill(color(255, 0, 0));
-      PVector pos = getTransformedCoordinate(vertices.get(i));
-      PVector posFirst = getTransformedCoordinate(vertices.get(0)); 
+      PVector pos = getTransformedPos(vertices.get(i));
+      PVector posFirst = getTransformedPos(vertices.get(0)); 
       ellipse(pos.x,pos.y, 40/scale, 40/scale);
       if(i < vertices.size() - 1)
       {
-        PVector posNext = getTransformedCoordinate(vertices.get(i + 1)); 
+        PVector posNext = getTransformedPos(vertices.get(i + 1)); 
         line(pos.x,pos.y,posNext.x,posNext.y);
       }
       else
@@ -86,7 +95,7 @@ class Mesh
     return(meshPos);
   }
   
-  PVector getTransformedCoordinate(PVector pos) // from local pos, get scaled and offset pos, to draw vertices right
+  PVector getTransformedPos(PVector pos) // from local pos, get scaled and offset pos, to draw vertices right
   {
     PVector meshPos = new PVector((pos.x / scale) + centre.x + offset.x,(pos.y / scale) + centre.y + offset.y);
     return(meshPos);
