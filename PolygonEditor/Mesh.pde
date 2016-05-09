@@ -28,7 +28,6 @@ class Mesh
    {
      vertices.get(i).update(); 
    }
-   // sortVertices();
   }
 
   void addVertex(PVector vert) // local to centre of the mesh
@@ -149,9 +148,8 @@ class Mesh
 
     for(int i = 0; i < vertices.size();i++)
     {
-      vertices.get(i).scale*= mult;
       PVector posT;
-      posT = getFalsePos(snapToGrid(PVector.mult(getTruePos(vertices.get(i).getPos()),vertices.get(i).scale)));
+      posT = getFalsePos(PVector.mult(getTruePos(vertices.get(i).getPos()),mult));
 
       vertices.get(i).setPos(posT);
     }
@@ -244,6 +242,5 @@ class Vertice
   PVector pos = new PVector(0,0);
   boolean isSelected = false;
   boolean isDragged = false;
-  float scale = 1;
   Settings settings = new Settings(color(255,0,0),color(0,0,0),2,MITER,PROJECT);
 }
