@@ -74,15 +74,19 @@ class Mesh
     for (int i = 0; i < vertices.size(); i++)
     {
       fill(color(255, 0, 0));
+      stroke(0,0,0);
       PVector pos = getTransformedPos(vertices.get(i));
       PVector posFirst = getTransformedPos(vertices.get(0)); 
       ellipse(pos.x,pos.y, 40/scale, 40/scale);
+      stroke(255,0,0);
       if(i < vertices.size() - 1)
       {
         PVector posNext = getTransformedPos(vertices.get(i + 1)); 
+
         line(pos.x,pos.y,posNext.x,posNext.y);
       }
       else
+       //stroke(255,0,0);
        line(pos.x,pos.y,posFirst.x,posFirst.y);
       text(i,pos.x -4,pos.y-6);
     }
@@ -101,7 +105,7 @@ class Mesh
     return(meshPos);
   }
   
-  PVector snapToGrid(PVector pos) // local pos
+  PVector snapToGrid(PVector pos) // local true pos
   {
     return(pos.set(round(pos.x),round(pos.y)));
   }
@@ -121,9 +125,17 @@ class Mesh
     return pos;
   }
   
-  private float scale = 1;
+  void displayGhost(){
+    PVector pos = getTransformedPos((mesh.getFalsePos(mesh.snapToGrid(mesh.getTruePos(mesh.getLocalPos(mouseX,mouseY))))));
+    println(pos);
+    stroke(0,0,0);
+    fill(255,0,0,90);
+    ellipse(pos.x,pos.y, 40/scale, 40/scale);
+  }
+  
+  private float scale = 6;
   PVector size = new PVector(width, height);
-  PVector boxSize = new PVector(1, 1);
+  PVector boxSize =   new PVector(width/scale, height/scale);
   PVector offset = new PVector(0,0);
   ArrayList<PVector> vertices = new ArrayList<PVector>();
   Settings settings = new Settings();
