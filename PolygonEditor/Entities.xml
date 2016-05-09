@@ -1,20 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entities>
-  <entity name="object.2">
-    <vertex x="0.0" y="-1.0"/>
-    <vertex x="-1.0" y="-1.0"/>
-    <vertex x="-1.0" y="0.0"/>
-    <vertex x="0.0" y="0.0"/>
-    <vertex x="-1.0" y="1.0"/>
-    <anchor-point x="0.0" y="0.0"/>
-    <color value="#000000"/>
-  </entity>
-  <entity name="object.3">
-    <vertex x="-1.0" y="-1.0"/>
-    <vertex x="1.0" y="-1.0"/>
-    <vertex x="1.0" y="0.0"/>
-    <vertex x="-1.0" y="0.0"/>
-    <anchor-point x="0.0" y="0.0"/>
-    <color value="#000000"/>
-  </entity>
+
 </entities>

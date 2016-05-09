@@ -25,11 +25,12 @@ class Gui
   Gui parent;
   Gui[] children;
   Settings settings = new Settings();
+  String text;
 }
 
 class GuiText extends Gui
 {
-  String text;
+
   GuiText(PVector _size, PVector _localPos, Gui _parent,String _text){
     super(_size,_localPos,_parent);
     text = _text;
@@ -39,6 +40,7 @@ class GuiText extends Gui
   void display()
   {
     super.display();
+    fill(255);
     text(text,localPos.x + parent.localPos.x,localPos.y + parent.localPos.y,size.x,size.y);
   }
 }

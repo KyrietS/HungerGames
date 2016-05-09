@@ -1,92 +1,125 @@
 boolean snapToGrid = true;
-PVector last= new PVector(0,0);
+PVector last= new PVector(0, 0);
 Mesh mesh;
 XmlWriter writer;
 PVector centre;
-boolean pressed,mPressed;
-String name,col;
+boolean pressed, mPressed;
+String name,colH;
+color col;
 PVector anchor;
 Gui menu;
 void setup()
 {
-  size(600,600);
+  size(600, 600);
   centre = new PVector(width/2, height/2);
   mesh = new Mesh();
   writer = new XmlWriter(mesh.vertices);
   pressed = false;
   mPressed = false;
-  name = "object.3";
-  col = "#000000";
-  anchor = new PVector(0,0);
-  menu = new Gui(new PVector(100,100),new PVector(0,0),menu);
-  menu.children = (Gui[])append(menu.children,new GuiText(new PVector(100,15),new PVector(5,0),menu,"name" + " : " + "'" + name + "'"));
-  menu.children = (Gui[])append(menu.children,new GuiText(new PVector(100,15),new PVector(5,15),menu,"color" + " : " + "'" + col + "'"));
-  menu.children = (Gui[])append(menu.children,new GuiText(new PVector(100,15),new PVector(5,30),menu,"anchor" + " : " + "'" + int(anchor.x)+","+int(anchor.y)+ "'"));
-  menu.children = (Gui[])append(menu.children,new GuiText(new PVector(100,15),new PVector(5,45),menu,"saved" + " : " + "'" +writer.saved+"'"));
+  
+  name = "untitled"; // set name, anchor and colH to alter file
+  colH = "#C22C0E";
+  col = toRGB(colH,50);
+  anchor = new PVector(0, 0);
+  
+  menu = new Gui(new PVector(100, 60), new PVector(0, 0), menu);
+  menu.settings.fill = true;
+  menu.settings.col = color(0, 0, 255, 99);
+  menu.children = (Gui[])append(menu.children, new GuiText(new PVector(100, 15), new PVector(5, 0), menu, "name" + " : " + "'" + name + "'"));
+  menu.children = (Gui[])append(menu.children, new GuiText(new PVector(100, 15), new PVector(5, 15), menu, "color" + " : " + "'" + colH + "'"));
+  menu.children = (Gui[])append(menu.children, new GuiText(new PVector(100, 15), new PVector(5, 30), menu, "anchor" + " : " + "'" + int(anchor.x)+","+int(anchor.y)+ "'"));
+  menu.children = (Gui[])append(menu.children, new GuiText(new PVector(100, 15), new PVector(5, 45), menu, "saved" + " : " + "'" +writer.saved+"'"));
 }
 
 void draw()
 {
   background(255);
-  menu.display();
+  if(snapToGrid)
+  {
+     mesh.displayGhost(); 
+  }
   mesh.update();
   mesh.display();
+  menu.display();
+  menu.children[3].text = "saved" + " : " + "'" +writer.saved+"'";
   writer.vertices = mesh.vertices;
-  if(keyPressed)
+  if (keyPressed)
   {
-    if(keyCode == LEFT)
-      mesh.offset.x += 2;
-    if(keyCode == RIGHT)
-      mesh.offset.x -= 2;
-    if(keyCode == UP)
-      mesh.offset.y += 2;
-    if(keyCode == DOWN)
-      mesh.offset.y -= 2;
-      
-    if(!pressed)
+    if (keyCode == ALT)
     {
-      if(key == 's')
+      snapToGrid = false;
+    }
+    //if(keyCode == LEFT)
+    //  mesh.offset.x += 2;
+    //if(keyCode == RIGHT)
+    //  mesh.offset.x -= 2;
+    //if(keyCode == UP)
+    //  mesh.offset.y += 2;
+    //if(keyCode == DOWN)
+    //  mesh.offset.y -= 2;
+
+    else if (!pressed)
+    {
+      if (key == 's')
       {
-        writer.saveObject(name,col,anchor.x,anchor.y);
+        writer.saveObject(name, colH, anchor.x, anchor.y);
         pressed = true;
       }
-      
-      if(key == '+')
+
+      if (key == '+')
       {
         mesh.scaleVertices(2); 
         pressed = true;
       }
-      
-      if(key == '_')
+
+      if (key == '_')
       {
         mesh.scaleVertices(0.5);  
         pressed = true;
       }
     }   
-    
-    if(keyCode == CONTROL && !pressed && !mPressed && mousePressed)
+
+    if (keyCode == CONTROL && !pressed && !mPressed && mousePressed)
     {
-      mesh.moveVertex(mouseX,mouseY);
+      mesh.moveVertex(mouseX, mouseY);
       mPressed = true;
       pressed = true;
     }
-    
-    if(keyCode == ALT)
-      snapToGrid = true;
-    else
-      snapToGrid = false;
-      
-    if(mousePressed)
+  }
+
+  if (mousePressed)
+  {
+    if (mouseButton == LEFT)
     {
-      if(keyCode == SHIFT)
+      last.set(mouseX, mouseY);
+    }
+    if (mouseButton == RIGHT)
+    {
+      mesh.removeVertex(mesh.getLocalPos(mouseX, mouseY));
+    }
+    if (keyCode == SHIFT)
+    {
+      rectMode(CORNERS);
+      rect(last.x, last.y, mouseX, mouseY);
+      rectMode(CORNER);
+    }
+    if (mouseButton == LEFT && !mPressed)
+    {
+      if (!keyPressed || keyCode == ALT)
       {
-        rectMode(CORNERS);
-        rect(last.x,last.y,mouseX,mouseY);
-        rectMode(CORNER);
+        if (snapToGrid)
+        {
+          mesh.addVertex(mesh.getFalsePos(mesh.snapToGrid(mesh.getTruePos(mesh.getLocalPos(mouseX, mouseY)))));
+        } else
+        {
+          mesh.addVertex(mesh.getLocalPos(mouseX, mouseY)); 
+          println(mesh.getLocalPos(mouseX, mouseY));
+        }
+        mPressed = true;
+        writer.saved = false;
       }
     }
   }
-  mesh.displayGhost();
 }
 
 void mouseWheel(MouseEvent event) {
@@ -97,39 +130,13 @@ void mouseWheel(MouseEvent event) {
   mesh.scale = clamp(mesh.scale, 1, 30);
 }
 
-void mousePressed()
-{
-
-  if(mouseButton == LEFT && keyCode != CONTROL)
-  {
-    if(snapToGrid)
-    {
-      mesh.addVertex(mesh.getFalsePos(mesh.snapToGrid(mesh.getTruePos(mesh.getLocalPos(mouseX,mouseY))))); 
-    }
-    else
-    {
-      mesh.addVertex(mesh.getLocalPos(mouseX,mouseY)); 
-      println(mesh.getLocalPos(mouseX,mouseY));
-    }
-  }
-  
-  if(mouseButton == LEFT)
-  {
-    last.set(mouseX,mouseY);
-  }
-  
-  if(mouseButton == RIGHT)
-  {
-     mesh.removeVertex(mesh.getLocalPos(mouseX,mouseY));
-
-  }
-}
 void keyReleased()
 {
   pressed = false; 
+  snapToGrid = true;
 }
 
 void mouseReleased()
 {
- mPressed = false; 
+  mPressed = false;
 }
