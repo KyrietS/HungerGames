@@ -29,6 +29,7 @@ void draw()
   { 
    mesh.offset.y += -2;
   }
+  mesh.displayGhost();
 }
 
 void mouseWheel(MouseEvent event) {
