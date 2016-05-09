@@ -19,3 +19,13 @@ class Gui
   Gui[] children;
   Settings settings = new Settings();
 }
+
+class Button
+{
+  Button(float x, float y, float w ,float h){ 
+    
+  }
+ protected PVector size;
+ protected PVector pos;
+ PImage image;
+}
