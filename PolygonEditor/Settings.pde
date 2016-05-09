@@ -20,6 +20,8 @@ class Settings
     strokeJoin( edge );       // setting: line edge 
     if(!fill)
       noFill();
+    if(!stroke)
+      noStroke();
   }
   
   
@@ -27,6 +29,7 @@ class Settings
   protected float bold = 1;                        // Setting: line weight.
   protected color strokeCol = #000000;                   // line color
   protected boolean fill = true;                               //fill or no fill
+  protected boolean stroke = true;  // stroke or no stroke
   protected int edge = MITER;                          // Setting: line edge style.
   protected int cap = PROJECT;                           // Setting: line cap style.
 }
