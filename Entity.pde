@@ -60,7 +60,7 @@ class Entity
       {
         Entity currentEntity = map.getEntity(index);
 
-        if ( collision.isCollision( currentEntity.getTransformed(), this.getTransformed() ) && ID != currentEntity.getID())
+        if ( ID != currentEntity.getID() && collision.isCollision( currentEntity.getTransformed(), this.getTransformed() ) )
         { 
           PVector toTarget = PVector.sub(PVector.sub(pos,vel),pos);  // calculate vector away from the colliding entity
           setVel(toTarget);
@@ -69,10 +69,6 @@ class Entity
             color rand = color(random(0, 255), random(0, 255), random(0, 255));
             currentEntity.settings.col = rand;
             settings.col = rand;
-            println("------------ Kolizja ------------");
-            currentEntity.printDebug();
-            this.printDebug();
-            println("---------------------------------");
             tmpDebug = false;
           }
 
@@ -88,6 +84,10 @@ class Entity
     {
       inCells[i].addEntity(ID); // add entities location to the cell at new position
     }
+<<<<<<< HEAD
+=======
+    //println(inCells.length);
+>>>>>>> origin/master
   }
 
   void printDebug()
