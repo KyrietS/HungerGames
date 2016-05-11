@@ -37,10 +37,11 @@ void keyReleased()
 
 void draw()
 {
-  map.displayAll();
   map.updateAll();
+  map.displayAll();
   map.moveToMouseALl();
   collisionMesh.displayMesh();
+  collisionMesh.clearAllCells(); // there is an error in the update code of entities, so i clear all cells for now. it occured when rotation was added
   if ( keyPressed )
   {
     if (key == 'r')
@@ -50,8 +51,12 @@ void draw()
         map.removeEntityByLocation(location);
     }
   }
+
+
+
 }
 
 void mouseClicked()
 {
+  println(frameRate);
 }

@@ -1,5 +1,5 @@
- //<>// //<>//
-class Entity //<>//
+//<>// //<>// //<>//
+class Entity
 {
   Settings settings = new Settings(#000000, #000000, 1, MITER, PROJECT);
   Entity(String _type, int x, int y)
@@ -37,11 +37,10 @@ class Entity //<>//
   void update()
   {
     CollisionCell[] inCells = collisionMesh.getCells(getTransformed()); // get data about which cells in the collision grid the entity is located in
-
-    for (int i = 0; i < inCells.length; i++)
-    {
-      inCells[i].removeEntity(ID); // remove entities location from the cell, and add it back at the end of update() at new position
-    }
+    //for (int i = 0; i < inCells.length; i++)
+    //{
+    //  inCells[i].removeEntity(ID); // remove entities location from the cell, and add it back at the end of update() at new position
+    //}
 
     int[] objectIds = new int[0];
     boolean isCollision = false;
@@ -56,37 +55,41 @@ class Entity //<>//
 
     for ( int i = 0; i < objectIds.length; i++ )
     {
-      Entity currentEntity = map.getEntity(map.getEntityIndexById(objectIds[i]));
+      int index = map.getEntityIndexById(objectIds[i]);
+      if (index != -1) // if entity is found
+      {
+        Entity currentEntity = map.getEntity(index);
 
-      if ( collision.isCollision( currentEntity.getTransformed(), this.getTransformed() ) && ID != currentEntity.getID())
-      { 
-        PVector toTarget = PVector.sub(pos, currentEntity.getPos());  // calculate vector away from the colliding entity
-        moveAt(toTarget, 5);
-        if ( tmpDebug )
-        {
-          color rand = color(random(0, 255), random(0, 255), random(0, 255));
-          currentEntity.settings.col = rand;
-          settings.col = rand;
-          println("------------ Kolizja ------------");
-          currentEntity.printDebug();
-          this.printDebug();
-          println("---------------------------------");
-          tmpDebug = false;
+        if ( collision.isCollision( currentEntity.getTransformed(), this.getTransformed() ) && ID != currentEntity.getID())
+        { 
+          PVector toTarget = PVector.sub(pos, currentEntity.getPos());  // calculate vector away from the colliding entity
+          moveAt(toTarget, 5);
+          if ( tmpDebug )
+          {
+            color rand = color(random(0, 255), random(0, 255), random(0, 255));
+            currentEntity.settings.col = rand;
+            settings.col = rand;
+            println("------------ Kolizja ------------");
+            currentEntity.printDebug();
+            this.printDebug();
+            println("---------------------------------");
+            tmpDebug = false;
+          }
+
+          isCollision = true;
+          break;
         }
-
-        isCollision = true;
-        break;
       }
     }
 
     pos.add(vel);
 
     inCells = collisionMesh.getCells(getTransformed()); // update in which cells the entity is in
-
     for (int i = 0; i < inCells.length; i++) 
     {
       inCells[i].addEntity(ID); // add entities location to the cell at new position
     }
+    println(inCells.length);
   }
 
   void printDebug()
@@ -111,6 +114,7 @@ class Entity //<>//
     targetPos.set(clamp(targetPos, 0, width, 0, height)); // clamp the position to the screen, efficient edge detection :)
     PVector resultantVector = PVector.sub(targetPos, pos);
     resultantVector.normalize();
+    direction.set(resultantVector);
     resultantVector.mult(speedTemp * random(0.5, 1.5));
     resultantVector.limit(speedTemp);
     vel.set(resultantVector);
@@ -134,6 +138,13 @@ class Entity //<>//
       vertex.sub( anchorPoint );
       vertex.mult(scale);
       vertex.add( anchorPoint );
+      float angle = PVector.angleBetween(new PVector(0, -1), direction); // calculate the angle from vector pointing upwards to the direction
+      if (direction.x > 0)                                             // if the direction is to the right, rotate right. otherwise if it is to the left rotate to the left
+        vertex.rotate(angle);
+      else if (direction.x < 0)
+        vertex.rotate(-angle);
+      else {
+      }                                                           // if the direction is the same as the vector up, do nothing
       vertex.add( pos );
       transformedVertices.add( new PVector( vertex.x, vertex.y ) );
     }
@@ -164,6 +175,7 @@ class Entity //<>//
   protected float speed = 10;
   protected float scale = 3.0;
   protected PVector anchorPoint = new PVector(0, 0);
+  protected PVector direction = new PVector(0, 0);
   protected PVector pos = new PVector(0, 0);              // Position of the object on the map. (Anchor point)
   protected PVector vel = new PVector(0, 0);              // velocity of the object
   protected ArrayList< PVector > vertices = new ArrayList< PVector >();
@@ -188,7 +200,9 @@ class Entity //<>//
       {
         XML currentChild = entities[ i ];
         // Find a proper entity.
-        if ( !currentChild.hasAttribute("type") ) {break;}  // entity doesn't contain "type" attribute - skip.
+        if ( !currentChild.hasAttribute("type") ) {
+          break;
+        }  // entity doesn't contain "type" attribute - skip.
         if ( currentChild.getString( "type" ).equals(type) ) // correct entity found. Then load it. 
         {
           entityFound = true;
@@ -207,11 +221,15 @@ class Entity //<>//
             settings.col = toRGB(hexColor);           // Loading color.
           }
 
-          if ( (entities = currentChild.getChildren("vertex")) == null ){return false;} // loading vertices
+          if ( (entities = currentChild.getChildren("vertex")) == null ) {
+            return false;
+          } // loading vertices
           for ( int j = 0; j < entities.length; j++ )
           {
             XML currentEntity = entities[ j ];
-            if ( !validateAttributes(currentEntity, args)) {return false;}
+            if ( !validateAttributes(currentEntity, args)) {
+              return false;
+            }
             vertex.set(currentEntity.getFloat("x") - anchorPoint.x, currentEntity.getFloat("y") - anchorPoint.y);
             vertices.add( new PVector( vertex.x, vertex.y ) );
           }
@@ -310,4 +328,16 @@ class Tribute extends Entity
 
   private int health;
   private float stamina;
+}
+
+class Weapon extends Entity
+{
+  Weapon(int x, int y)
+  {
+    super("Weapon", x, y);
+  }
+  protected float range;
+  protected float effectiveRange;
+  protected float power;
+  protected int owner;
 }

@@ -58,6 +58,13 @@ class CollisionMesh
       }
     }
   }
+  void clearAllCells()
+  {
+    for(int i = 0; i < cells.length; i++)
+    {
+      cells[i].removeAllEntities();
+    }
+  }
   
   private CollisionCell[] cells = new CollisionCell[0]; 
   private PVector size = new PVector(10,10); // number of boxes across width and height
@@ -92,6 +99,7 @@ class CollisionCell
   {
     entityIds.append(ID);
   }
+  
   void removeEntity(int ID)
   {
     for(int i = 0; i < entityIds.size(); i++)
@@ -100,6 +108,14 @@ class CollisionCell
         entityIds.remove(i);
     }
   } 
+  
+  void removeAllEntities()
+  {
+    for(int i = 0; i < entityIds.size();i++)
+    {
+     entityIds.remove(i); 
+    }
+  }
   private PVector vertexLeftUp = new PVector(0,0),vertexRightDown = new PVector(0,0);
   private IntList entityIds;
 }
