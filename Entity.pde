@@ -1,4 +1,4 @@
-//<>// //<>// //<>//
+//<>// //<>// //<>// //<>//
 class Entity
 {
   Settings settings = new Settings(#000000, #000000, 1, MITER, PROJECT);
@@ -84,10 +84,9 @@ class Entity
     {
       inCells[i].addEntity(ID); // add entities location to the cell at new position
     }
-<<<<<<< HEAD
-=======
+
     //println(inCells.length);
->>>>>>> origin/master
+
   }
 
   void printDebug()
