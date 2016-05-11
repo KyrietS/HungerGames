@@ -44,7 +44,7 @@ class Entity
 
     int[] objectIds = new int[0];
     boolean isCollision = false;
-
+    direction.set(vel);
     for (int i = 0; i < inCells.length; i++)
     {
       for (int j = 0; j < inCells[i].getObjectsIds().length; j++)
@@ -62,8 +62,8 @@ class Entity
 
         if ( collision.isCollision( currentEntity.getTransformed(), this.getTransformed() ) && ID != currentEntity.getID())
         { 
-          PVector toTarget = PVector.sub(pos, currentEntity.getPos());  // calculate vector away from the colliding entity
-          moveAt(toTarget, 5);
+          PVector toTarget = PVector.sub(PVector.sub(pos,vel),pos);  // calculate vector away from the colliding entity
+          setVel(toTarget);
           if ( tmpDebug )
           {
             color rand = color(random(0, 255), random(0, 255), random(0, 255));
@@ -83,13 +83,11 @@ class Entity
     }
 
     pos.add(vel);
-
     inCells = collisionMesh.getCells(getTransformed()); // update in which cells the entity is in
     for (int i = 0; i < inCells.length; i++) 
     {
       inCells[i].addEntity(ID); // add entities location to the cell at new position
     }
-    println(inCells.length);
   }
 
   void printDebug()
@@ -99,7 +97,23 @@ class Entity
       println( "(" + ID + ") vert " + i + "(" + getTransformed().get(i).x + "," + getTransformed().get(i).y + ")");
     }
   }
-
+  
+  void resolveCollision(Entity entity1, Entity entity2)
+  {
+    float mass1 = entity1.mass;
+    float mass2 = entity2.mass;
+ 
+    float newVelX1 = (entity1.vel.x * (mass1 - mass2) + (2 * mass2 * entity2.vel.x)) / (mass1 + mass2);
+    float newVelY1 = (entity1.vel.y * (mass1 - mass2) + (2 * mass2 * entity2.vel.y)) / (mass1 + mass2);
+    float newVelX2 = (entity2.vel.x * (mass2 - mass1) + (2 * mass1 * entity1.vel.x)) / (mass1 + mass2);
+    float newVelY2 = (entity2.vel.y * (mass2 - mass1) + (2 * mass1 * entity1.vel.y)) / (mass1 + mass2);
+    
+    entity1.pos.x = entity1.pos.x + newVelX1;
+    entity1.pos.y = entity1.pos.y + newVelY1;
+    entity2.pos.x = entity2.pos.x + newVelX2;
+    entity2.pos.y = entity2.pos.y + newVelY2;
+  }
+  
   void moveToPos(float x, float y)
   {
 
@@ -114,12 +128,12 @@ class Entity
     targetPos.set(clamp(targetPos, 0, width, 0, height)); // clamp the position to the screen, efficient edge detection :)
     PVector resultantVector = PVector.sub(targetPos, pos);
     resultantVector.normalize();
-    direction.set(resultantVector);
     resultantVector.mult(speedTemp * random(0.5, 1.5));
     resultantVector.limit(speedTemp);
     vel.set(resultantVector);
   }
-  void moveAt(PVector dir, float speedMult)
+  
+  void moveInDirection(PVector dir, float speedMult)
   {
     float speedTemp = speed * speedMult;
     speedTemp /= frameRate;
@@ -128,6 +142,12 @@ class Entity
     dir.limit(speedTemp);
     vel.set(dir);
   }
+  
+  void setVel(PVector dir)
+  {
+    vel.set(dir);
+  }
+  
   ArrayList< PVector > getTransformed()
   {
     PVector vertex;
@@ -174,13 +194,13 @@ class Entity
   private int ID;
   protected float speed = 10;
   protected float scale = 3.0;
+  protected float mass = 5;
   protected PVector anchorPoint = new PVector(0, 0);
   protected PVector direction = new PVector(0, 0);
   protected PVector pos = new PVector(0, 0);              // Position of the object on the map. (Anchor point)
   protected PVector vel = new PVector(0, 0);              // velocity of the object
   protected ArrayList< PVector > vertices = new ArrayList< PVector >();
   protected String type = "None";                        // type of the object. If "none", the object is not specified.
-
 
   // Load data from file: "data\Entity.xml". More info about specification of the file can be found in Docs.
   private boolean loadFromFile()

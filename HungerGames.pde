@@ -26,6 +26,9 @@ void keyPressed()
   } else if ( key == 'b')
   {
     map.addEntity( new Entity("Box", mouseX, mouseY ) );
+  } else if (key == 'w')
+  {
+    map.addEntity( new Weapon(mouseX,mouseY)); 
   }
   pressed = true;
 }
