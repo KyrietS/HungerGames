@@ -56,7 +56,7 @@ void draw()
 
 }
 
-void mouseClicked()
-{
-  println(frameRate);
-}
+//void mouseClicked()
+//{
+//  println(frameRate);
+//}
