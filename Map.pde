@@ -61,18 +61,15 @@ class Map
   
   int getEntityIndexByPos(float x, float y)
   {
-    PVector pos = new PVector(x,y);
     int location = -1;
     for (int i = 0; i < entities.size(); i++)
     {
       Entity currentEntity = entities.get(i);
-      if(collision.checkContaining(currentEntity.getTransformed(),new PVector(mouseX,mouseY))) // checks if the entity is "close". to be added: proper collision detection 
+      if(collision.checkContaining(currentEntity.getTransformed(),new PVector(x,y))) // checks if the entity is "close". to be added: proper collision detection 
         location = i; // return location
     }
     return location; // if no entity at pos return -1
   }
-  
-  
   
   void displayAll()
   {
