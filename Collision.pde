@@ -37,6 +37,7 @@ class CollisionMesh
   CollisionCell getCell(float x, float y) {
     return(cells[get1dLocation(x, y)]);
   }
+  
   int get1dLocation(float x, float y)
   {
     float xBox = floor(x / boxSize.x);

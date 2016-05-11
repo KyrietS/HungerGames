@@ -199,7 +199,7 @@ class Entity
   protected PVector pos = new PVector(0, 0);              // Position of the object on the map. (Anchor point)
   protected PVector vel = new PVector(0, 0);              // velocity of the object
   protected ArrayList< PVector > vertices = new ArrayList< PVector >();
-  protected String type = "None";                        // type of the object. If "none", the object is not specified.
+  protected String type = "None";                         // type of the object. If "none", the object is not specified.
 
   // Load data from file: "data\Entity.xml". More info about specification of the file can be found in Docs.
   private boolean loadFromFile()
