@@ -62,8 +62,8 @@ class Entity
 
         if ( ID != currentEntity.getID() && collision.isCollision( currentEntity.getTransformed(), this.getTransformed() ) )
         { 
-          PVector toTarget = PVector.sub(PVector.sub(pos,vel),pos);  // calculate vector away from the colliding entity
-          setVel(toTarget);
+          PVector toTarget = PVector.sub(pos,currentEntity.pos);  // calculate vector away from the colliding entity
+          moveInDirection(toTarget,5);
           if ( tmpDebug )
           {
             color rand = color(random(0, 255), random(0, 255), random(0, 255));
