@@ -36,6 +36,7 @@ void keyPressed()
 void keyReleased()
 {
   pressed = false;
+  
 }
 
 void draw()
@@ -54,9 +55,6 @@ void draw()
         map.removeEntityByLocation(location);
     }
   }
-
-
-
 }
 
 //void mouseClicked()

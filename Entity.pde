@@ -62,8 +62,8 @@ class Entity
 
         if ( ID != currentEntity.getID() && collision.isCollision( currentEntity.getTransformedVertices(), this.getTransformedVertices() ) )
         { 
-          PVector toTarget = PVector.sub(pos,currentEntity.pos);  // calculate vector away from the colliding entity
-          moveInDirection(toTarget,5);
+          PVector toTarget = PVector.sub(pos, currentEntity.pos);  // calculate vector away from the colliding entity
+          moveInDirection(toTarget, 5);
           if ( tmpDebug )
           {
             color rand = color(random(0, 255), random(0, 255), random(0, 255));
@@ -86,7 +86,6 @@ class Entity
     }
 
     //println(inCells.length);
-
   }
 
   void printDebug()
@@ -96,23 +95,7 @@ class Entity
       println( "(" + ID + ") vert " + i + "(" + getTransformedVertices().get(i).x + "," + getTransformedVertices().get(i).y + ")");
     }
   }
-  
-  void resolveCollision(Entity entity1, Entity entity2)
-  {
-    float mass1 = entity1.mass;
-    float mass2 = entity2.mass;
- 
-    float newVelX1 = (entity1.vel.x * (mass1 - mass2) + (2 * mass2 * entity2.vel.x)) / (mass1 + mass2);
-    float newVelY1 = (entity1.vel.y * (mass1 - mass2) + (2 * mass2 * entity2.vel.y)) / (mass1 + mass2);
-    float newVelX2 = (entity2.vel.x * (mass2 - mass1) + (2 * mass1 * entity1.vel.x)) / (mass1 + mass2);
-    float newVelY2 = (entity2.vel.y * (mass2 - mass1) + (2 * mass1 * entity1.vel.y)) / (mass1 + mass2);
-    
-    entity1.pos.x = entity1.pos.x + newVelX1;
-    entity1.pos.y = entity1.pos.y + newVelY1;
-    entity2.pos.x = entity2.pos.x + newVelX2;
-    entity2.pos.y = entity2.pos.y + newVelY2;
-  }
-  
+
   void moveToPos(float x, float y)
   {
 
@@ -131,7 +114,7 @@ class Entity
     resultantVector.limit(speedTemp);
     vel.set(resultantVector);
   }
-  
+
   void moveInDirection(PVector dir, float speedMult)
   {
     float speedTemp = speed * speedMult;
@@ -141,12 +124,12 @@ class Entity
     dir.limit(speedTemp);
     vel.set(dir);
   }
-  
+
   void setVel(PVector dir)
   {
     vel.set(dir);
   }
-  
+
   ArrayList< PVector > getTransformedVertices()
   {
     PVector vertex;
@@ -355,41 +338,149 @@ class Weapon extends Entity
   {
     super("Weapon", x, y);
     scale = 2;
+
     // calculate the length of the weapon
+
     float highestY = 0;
     float lowestY = 0;
-    for(int i = 0 ; i < vertices.size() ; i++)
+    for (int i = 0; i < vertices.size(); i++)
     {
-      if(vertices.get(i).y < highestY) // find the vertex with highest y coordinate
+      if (vertices.get(i).y < highestY) // find the vertex with highest y coordinate
       {
         highestY = vertices.get(i).y;
-      }
-      else if(vertices.get(i).y < lowestY) // find the vertex with lowest y coordinate at the same time
+      } else if (vertices.get(i).y < lowestY) // find the vertex with lowest y coordinate at the same time
       {
         lowestY = vertices.get(i).x;
       }
     }
     range = (lowestY + (-highestY)) * scale; // get positive length (remember y is flipped in processing)
+
+    // calculate the time needed for each swing
+
+    float arcLength =  ( ( abs(swingInitialAngle) + abs(swingFinalAngle) ) /360 ) * PI * range * 2; // calculate the distance the tip of the weapon will travel (x/360 * circumference of circle)
+    swingTimer = new Timer(arcLength/(swingSpeed/frameRate)); // create a timer object, used later to controll swings, with a delay equal to d/(v/frameRate)
+    pressed = false;
+    
+    // set direction to random
+    direction.set(PVector.fromAngle(random(0,TWO_PI)));
   }
-  
+
   void update()
   {
-    if(!isAttacking) return;
-    super.update();
+    if (mousePressed && !pressed && ownerID != -1) // temporary, for now all weapons attack with mouse
+    {
+      startSwing();
+      pressed = true;
+    }
+
+    if (!isAttacking && ownerID != -1) return;
+    // check collisions \\
+
+    CollisionCell[] inCells = collisionMesh.getCells(getTransformedVertices()); // get data about which cells in the collision grid the entity is located in
+
+    int[] objectIds = new int[0];
+    boolean isCollision = false;
+    for (int i = 0; i < inCells.length; i++)
+    {
+      for (int j = 0; j < inCells[i].getObjectsIds().length; j++)
+      {
+        objectIds = (int[])append(objectIds, inCells[i].getObjectsIds()[j]);  // accumulate all the nearby objects by collecting data from all cells which the entity is in
+      }
+    }
+
+    for ( int i = 0; i < objectIds.length; i++ )
+    {
+      int index = map.getEntityIndexById(objectIds[i]);
+      if (index != -1) // if entity is found
+      {
+        Entity currentEntity = map.getEntity(index);
+
+        if ( getID() != currentEntity.getID() && collision.isCollision( currentEntity.getTransformedVertices(), this.getTransformedVertices() ) )
+        { 
+          if (ownerID == -1) ownerID = currentEntity.getID();
+
+          if ( tmpDebug )
+          {
+            color rand = color(random(0, 255), random(0, 255), random(0, 255));
+            currentEntity.settings.col = rand;
+            settings.col = rand;
+            tmpDebug = false;
+          }
+
+          isCollision = true;
+          break;
+        }
+      }
+    }
+    // check timers
+
+    if (!isAttacking) return;
+
+    swingTimer.update(); // set the current time in the timer to millis()
+
+    if (swingTimer.passed()) // if the swing ends
+    {
+      isAttacking = false; 
+      pressed = false;
+    }
   }
-  
+
   void display()
   {
-   if(!isAttacking) return;
-   super.display();
+    if (!isAttacking && ownerID != -1) return;
+    if (ownerID != -1)
+    {
+      pos.set(map.getEntity(map.getEntityIndexById(ownerID)).pos);
+    }
+    super.display();
   }
-  
-  protected float range = 0;                // the range of the weapon from point 0,0 on the parent object
+
+  void startSwing()
+  {
+    swingTimer.set(); // zero the timer
+    isAttacking = true;
+  }
+
+  float getAngleAtTime(int time)
+  {
+    float angle = (time/swingTimer.delay) * (abs(swingInitialAngle) + abs(swingFinalAngle));  // calculate the angle at particular time of swing. TimeNow/TimeTotal = AngleNow/AngleTotal therefore AngleNow = TimeNow/TimeTotal * AngleTotal
+    return angle;
+  }
+
+  ArrayList< PVector > getTransformedVertices()
+  {
+    PVector vertex;
+    ArrayList< PVector > transformedVertices = new ArrayList< PVector >();
+    if(ownerID != -1)
+      direction.set(map.getEntity(map.getEntityIndexById(ownerID)).direction); // set direction to parents direction, every rotation will be relative to parent
+    for ( int i = 0; i < vertices.size(); i++ )
+    {
+      vertex = new PVector( vertices.get(i).x, vertices.get(i).y );
+      vertex.sub( anchorPoint );
+      vertex.mult(scale);
+      vertex.add( anchorPoint );
+      float angle = PVector.angleBetween(new PVector(0, -1), direction);               // calculate the angle from vector pointing upwards to the screen
+      if (isAttacking) angle += getAngleAtTime(swingTimer.getTime()) + swingFinalAngle; // if swinging add the angle of rotation at current point of time relative to final angle due
+      if (direction.x > 0)                                                             // if the direction is to the right, rotate right. otherwise if it is to the left rotate to the left
+        vertex.rotate(angle);
+      else if (direction.x < 0)
+        vertex.rotate(-angle);
+      else {
+      }                                   // if the direction is the same as the vector up, do nothing
+      vertex.add( pos );
+      transformedVertices.add( new PVector( vertex.x, vertex.y ) );
+    }
+    return transformedVertices;
+  }
+
+  protected Timer swingTimer;
+  boolean pressed; // temporary variable for testing
+  protected float range;                    // the range of the weapon from point 0,0 on the parent object - the anchor point on weapons should be kept at the handle
   protected float effectiveRange = 0;       // from the 0,0 point on the parent object the distance to the 'blade' of the weapon, at this point and further the weapon is the most effective
   protected float power = 0;                // the main attribute deciding about actuall damage
-  protected float swingSpeed = 0;           // the velocity of the swing
-  protected float swingInitialAngle;        // the starting angle of the swing
-  protected float swingFinalAngle;          // the final angle of swing
+  protected float swingSpeed = 0.2;           // the velocity of the swing
+  protected float swingInitialAngle = PI/4;        // the starting angle of the swing in radians
+  protected float swingFinalAngle = -PI/4;          // the final angle of swing in radians
   protected int ownerID = -1;               // the ID of the parent object
   protected boolean isAttacking = false;    // is the weapon in use
   protected float[] animationAngles;        // stores the angle of rotation in relation to the direction of the parent, each index is one frame
