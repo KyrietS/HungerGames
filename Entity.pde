@@ -25,7 +25,7 @@ class Entity
 
     for ( int i = 0; i < vertices.size(); i++ )
     {
-      vertex( getTransformed().get( i ).x, getTransformed().get(i).y );
+      vertex( getTransformedVertices().get( i ).x, getTransformedVertices().get(i).y );
     }
 
     endShape(CLOSE);
@@ -36,7 +36,7 @@ class Entity
 
   void update()
   {
-    CollisionCell[] inCells = collisionMesh.getCells(getTransformed()); // get data about which cells in the collision grid the entity is located in
+    CollisionCell[] inCells = collisionMesh.getCells(getTransformedVertices()); // get data about which cells in the collision grid the entity is located in
     //for (int i = 0; i < inCells.length; i++)
     //{
     //  inCells[i].removeEntity(ID); // remove entities location from the cell, and add it back at the end of update() at new position
@@ -60,7 +60,7 @@ class Entity
       {
         Entity currentEntity = map.getEntity(index);
 
-        if ( ID != currentEntity.getID() && collision.isCollision( currentEntity.getTransformed(), this.getTransformed() ) )
+        if ( ID != currentEntity.getID() && collision.isCollision( currentEntity.getTransformedVertices(), this.getTransformedVertices() ) )
         { 
           PVector toTarget = PVector.sub(pos,currentEntity.pos);  // calculate vector away from the colliding entity
           moveInDirection(toTarget,5);
@@ -79,7 +79,7 @@ class Entity
     }
 
     pos.add(vel);
-    inCells = collisionMesh.getCells(getTransformed()); // update in which cells the entity is in
+    inCells = collisionMesh.getCells(getTransformedVertices()); // update in which cells the entity is in
     for (int i = 0; i < inCells.length; i++) 
     {
       inCells[i].addEntity(ID); // add entities location to the cell at new position
@@ -93,7 +93,7 @@ class Entity
   {
     for ( int i = 0; i < vertices.size(); i++ )
     {
-      println( "(" + ID + ") vert " + i + "(" + getTransformed().get(i).x + "," + getTransformed().get(i).y + ")");
+      println( "(" + ID + ") vert " + i + "(" + getTransformedVertices().get(i).x + "," + getTransformedVertices().get(i).y + ")");
     }
   }
   
@@ -147,7 +147,7 @@ class Entity
     vel.set(dir);
   }
   
-  ArrayList< PVector > getTransformed()
+  ArrayList< PVector > getTransformedVertices()
   {
     PVector vertex;
     ArrayList< PVector > transformedVertices = new ArrayList< PVector >();
@@ -354,9 +354,43 @@ class Weapon extends Entity
   Weapon(int x, int y)
   {
     super("Weapon", x, y);
+    scale = 2;
+    // calculate the length of the weapon
+    float highestY = 0;
+    float lowestY = 0;
+    for(int i = 0 ; i < vertices.size() ; i++)
+    {
+      if(vertices.get(i).y < highestY) // find the vertex with highest y coordinate
+      {
+        highestY = vertices.get(i).y;
+      }
+      else if(vertices.get(i).y < lowestY) // find the vertex with lowest y coordinate at the same time
+      {
+        lowestY = vertices.get(i).x;
+      }
+    }
+    range = (lowestY + (-highestY)) * scale; // get positive length (remember y is flipped in processing)
   }
-  protected float range;
-  protected float effectiveRange;
-  protected float power;
-  protected int owner;
+  
+  void update()
+  {
+    if(!isAttacking) return;
+    super.update();
+  }
+  
+  void display()
+  {
+   if(!isAttacking) return;
+   super.display();
+  }
+  
+  protected float range = 0;                // the range of the weapon from point 0,0 on the parent object
+  protected float effectiveRange = 0;       // from the 0,0 point on the parent object the distance to the 'blade' of the weapon, at this point and further the weapon is the most effective
+  protected float power = 0;                // the main attribute deciding about actuall damage
+  protected float swingSpeed = 0;           // the velocity of the swing
+  protected float swingInitialAngle;        // the starting angle of the swing
+  protected float swingFinalAngle;          // the final angle of swing
+  protected int ownerID = -1;               // the ID of the parent object
+  protected boolean isAttacking = false;    // is the weapon in use
+  protected float[] animationAngles;        // stores the angle of rotation in relation to the direction of the parent, each index is one frame
 }
