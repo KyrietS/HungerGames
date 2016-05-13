@@ -56,6 +56,8 @@ class CollisionMesh
       {
         currentCell.settings.applySettings();
         rect(pos.x, pos.y, boxSize.x, boxSize.y);
+        fill(255);
+        text(currentCell.entityIds.get(0),pos.x,pos.y);
       }
     }
   }

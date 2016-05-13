@@ -58,7 +58,11 @@ int findMax(ArrayList<Entity> array) // for finding highest ID
   return max;
 }
 
-
+String getClassName(Entity e)
+{
+  String[] strings = split(e.getClass().toString(),"$");
+  return strings[1];
+}
 // XML global functions
 
 
