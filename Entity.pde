@@ -1,6 +1,7 @@
 //<>// //<>// //<>// //<>//
 class Entity
 {
+  boolean tmpDebug = true;
   Settings settings = new Settings(#000000, #000000, 1, MITER, PROJECT);
   Entity(String _type, int x, int y)
   {
@@ -11,58 +12,37 @@ class Entity
       println("Entity: Cannot create an entity object. LoadFromFile failed!");
     }
   }
-
   Entity() {
-  } // Default constructor.
+  } 
 
-  void display() // Draw an object on the screen.
+  void display() //<>//
   {
     settings.applySettings();
-    //pushMatrix();
-    //translate( pos.x, pos.y );
-    //scale(settings.scale);
     beginShape();
-
     for ( int i = 0; i < vertices.size(); i++ )
     {
       vertex( getTransformedVertices().get( i ).x, getTransformedVertices().get(i).y );
     }
-
     endShape(CLOSE);
-    //popMatrix();
   }
 
-  boolean tmpDebug = true;
-
-  void update()
+  void update() //<>//
   {
-    CollisionCell[] inCells = collisionMesh.getCells(getTransformedVertices()); // get data about which cells in the collision grid the entity is located in
-    //for (int i = 0; i < inCells.length; i++)
-    //{
-    //  inCells[i].removeEntity(ID); // remove entities location from the cell, and add it back at the end of update() at new position
-    //}
+    CollisionCell[] inCells = collisionMesh.getCells(getTransformedVertices());
+    int[] objectIds = getIdsOfEntitiesInCells(inCells);
 
-    int[] objectIds = new int[0];
     boolean isCollision = false;
-    direction.set(vel);
-    for (int i = 0; i < inCells.length; i++)
-    {
-      for (int j = 0; j < inCells[i].getObjectsIds().length; j++)
-      {
-        objectIds = (int[])append(objectIds, inCells[i].getObjectsIds()[j]);  // accumulate all the nearby objects by collecting data from all cells which the entity is in
-      }
-    }
-
     for ( int i = 0; i < objectIds.length; i++ )
     {
       int index = map.getEntityIndexById(objectIds[i]);
-      if (index != -1) // if entity is found
+
+      if (index != -1)
       {
         Entity currentEntity = map.getEntity(index);
 
         if ( ID != currentEntity.getID() && collision.isCollision( currentEntity.getTransformedVertices(), this.getTransformedVertices() ) )
         { 
-          PVector toTarget = PVector.sub(pos, currentEntity.pos);  // calculate vector away from the colliding entity
+          PVector toTarget = PVector.sub(pos, currentEntity.pos);
           moveInDirection(toTarget, 5);
           if ( tmpDebug )
           {
@@ -71,32 +51,39 @@ class Entity
             settings.col = rand;
             tmpDebug = false;
           }
-
           isCollision = true;
           break;
         }
       }
     }
-
+    direction.set(vel);
     pos.add(vel);
     inCells = collisionMesh.getCells(getTransformedVertices()); // update in which cells the entity is in
+    addIdToCells(inCells);
+  }
+
+  int[] getIdsOfEntitiesInCells(CollisionCell[] inCells)       //<>//
+  {
+    int[] objectIds = new int[0];
+    for (int i = 0; i < inCells.length; i++)
+    {
+      for (int j = 0; j < inCells[i].getObjectsIds().length; j++)
+      {
+        objectIds = (int[])append(objectIds, inCells[i].getObjectsIds()[j]);  // accumulate all the nearby objects by collecting data from all cells which the entity is in
+      }
+    }
+    return objectIds;
+  }
+
+  void addIdToCells(CollisionCell[] inCells)           //<>//
+  {
     for (int i = 0; i < inCells.length; i++) 
     {
       inCells[i].addEntity(ID); // add entities location to the cell at new position
     }
-
-    //println(inCells.length);
   }
 
-  void printDebug()
-  {
-    for ( int i = 0; i < vertices.size(); i++ )
-    {
-      println( "(" + ID + ") vert " + i + "(" + getTransformedVertices().get(i).x + "," + getTransformedVertices().get(i).y + ")");
-    }
-  }
-
-  void moveToPos(float x, float y)
+  void moveToPos(float x, float y)                   //<>//
   {
 
     if ( dist(x, y, pos.x, pos.y) < 0.1) // check if arrived at target
@@ -115,7 +102,7 @@ class Entity
     vel.set(resultantVector);
   }
 
-  void moveInDirection(PVector dir, float speedMult)
+  void moveInDirection(PVector dir, float speedMult)         //<>//
   {
     float speedTemp = speed * speedMult;
     speedTemp /= frameRate;
@@ -125,12 +112,7 @@ class Entity
     vel.set(dir);
   }
 
-  void setVel(PVector dir)
-  {
-    vel.set(dir);
-  }
-
-  ArrayList< PVector > getTransformedVertices()
+  ArrayList< PVector > getTransformedVertices()         //<>//
   {
     PVector vertex;
     ArrayList< PVector > transformedVertices = new ArrayList< PVector >();
@@ -141,8 +123,8 @@ class Entity
       vertex.mult(scale);
       vertex.add( anchorPoint );
       float angle = PVector.angleBetween(new PVector(0, -1), direction); // calculate the angle from vector pointing upwards to the direction
-      if(direction.x < 0) angle = -angle;   // if the direction is to the right, rotate right. otherwise if it is to the left rotate to the left
-      else if(direction.x == 0) angle = 0;   // if the direction is the same as the vector up, do nothing           
+      if (direction.x < 0) angle = -angle;   // if the direction is to the right, rotate right. otherwise if it is to the left rotate to the left
+      else if (direction.x == 0) angle = 0;   // if the direction is the same as the vector up, do nothing           
       vertex.rotate(angle);                                                      
       vertex.add( pos );
       transformedVertices.add( new PVector( vertex.x, vertex.y ) );
@@ -150,24 +132,31 @@ class Entity
     return transformedVertices;
   }
 
-  PVector getPos()
-  {
+  PVector getPos() {           //<>//
     return pos;
   }
-  void setPos( float x, float y )
-  {
+  void setPos( float x, float y ) {   //<>//
     pos.set(x, y);
   }
-  void setPos( PVector v )
-  {
+  void setPos( PVector v ) {   //<>//
     pos.set(v);
   }
-  int getID()
-  {
+  int getID() {               //<>//
     return ID;
   }
-  String getEntityType() {
+  void setVel(PVector dir) {   //<>//
+    vel.set(dir);
+  }
+  String getEntityType() {     //<>//
     return type;
+  }
+
+  void printDebug()           //<>//
+  {
+    for ( int i = 0; i < vertices.size(); i++ )
+    {
+      println( "(" + ID + ") vert " + i + "(" + getTransformedVertices().get(i).x + "," + getTransformedVertices().get(i).y + ")");
+    }
   }
 
   private int ID;
@@ -176,73 +165,60 @@ class Entity
   protected float mass = 5;
   protected PVector anchorPoint = new PVector(0, 0);
   protected PVector direction = new PVector(0, 0);
-  protected PVector pos = new PVector(0, 0);              // Position of the object on the map. (Anchor point)
-  protected PVector vel = new PVector(0, 0);              // velocity of the object
+  protected PVector pos = new PVector(0, 0);
+  protected PVector vel = new PVector(0, 0);
   protected ArrayList< PVector > vertices = new ArrayList< PVector >();
-  protected String type = "None";                         // type of the object. If "none", the object is not specified.
+  protected String type = "None";
 
-  // Load data from file: "data\Entity.xml". More info about specification of the file can be found in Docs.
-  private boolean loadFromFile()
+  private boolean loadFromFile()  // Load data from file: "data\Entity.xml". More info about specification of the file can be found in Docs.
   {
     boolean entityFound = false;
+
     try
     {
-
       XML file = loadFile("data/Entities.xml");
-      if (file == null) {
-        return false;
-      }
-
+      if (file == null) return false;
       XML[] entities = file.getChildren("entity");
 
       for ( int i = 0; i < entities.length; i++ )
       {
         XML currentChild = entities[ i ];
         // Find a proper entity.
-        if ( !currentChild.hasAttribute("type") ) {
-          break;
-        }  // entity doesn't contain "type" attribute - skip.
-        if ( currentChild.getString( "type" ).equals(type) ) // correct entity found. Then load it. 
+        if ( !currentChild.hasAttribute("type") ) break; // entity doesn't contain "type" attribute - skip.
+        if ( currentChild.getString( "type" ).equals(type) )  // correct entity found. Then load it. 
         {
           entityFound = true;
           PVector vertex = new PVector();        // Temporary variable for readability.
-
           String[] args = {"x", "y"};
+
           if (validateAttributes(currentChild.getChild("anchor-point"), args))      // Loading anchor point.
           {
-            anchorPoint.x = currentChild.getChild("anchor-point").getFloat("x");          
-            anchorPoint.y = currentChild.getChild("anchor-point").getFloat("y");
+            anchorPoint.set(currentChild.getChild("anchor-point").getFloat("x"), currentChild.getChild("anchor-point").getFloat("y"));
           }
 
           if (validateAttributes(currentChild.getChild("color"), "value"))         // loading color
           {
             String hexColor = currentChild.getChild("color").getString("value");  // Loads color to string. For example: "#FF44BB".
-            settings.col = toRGB(hexColor);           // Loading color.
+            settings.col = toRGB(hexColor);
           }
 
-          if ( (entities = currentChild.getChildren("vertex")) == null ) {
-            return false;
-          } // loading vertices
+          if ( (entities = currentChild.getChildren("vertex")) == null ) return false; // loading vertices
           for ( int j = 0; j < entities.length; j++ )
           {
             XML currentEntity = entities[ j ];
-            if ( !validateAttributes(currentEntity, args)) {
-              return false;
-            }
+            if ( !validateAttributes(currentEntity, args)) return false;
             vertex.set(currentEntity.getFloat("x") - anchorPoint.x, currentEntity.getFloat("y") - anchorPoint.y);
             vertices.add( new PVector( vertex.x, vertex.y ) );
           }
           return true;
-        }
+        } // if
       } // for
     } // try
-    catch( NullPointerException e )    // Unknown problem with reading.
-    {
-      println("Some element not found.");
+    catch( NullPointerException e ) { 
+      println("Some element not found."); 
       return false;
-    }
-    if ( !entityFound )
-      println("Cannot find \"" + type + "\" entity in file: \"Data\\Entities.xml\"");
+    } // Unknown problem with reading.
+    if ( !entityFound ) println("Cannot find \"" + type + "\" entity in file: \"Data\\Entities.xml\"");
     return false;
   } // loadDataFromFile
 } // class Entity
