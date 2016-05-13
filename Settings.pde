@@ -22,8 +22,7 @@ private class Settings
       noFill();
   }
   
-  
-  protected color col = #000000;                         // Setting: fill color.
+  protected color col = color(0,0,0);                         // Setting: fill color.
   protected float bold = 1;                        // Setting: line weight.
   protected color strokeCol = #000000;                   // line color
   protected boolean fill = true;                               //fill or no fill
