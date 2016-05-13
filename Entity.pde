@@ -1,4 +1,4 @@
-//<>// //<>// //<>// //<>//
+//<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
 class Entity
 {
   boolean tmpDebug = true;
@@ -15,7 +15,9 @@ class Entity
   Entity() {
   } 
 
-  void display() //<>//
+  // Main Methods ---------- Main Methods \\
+
+  void display()
   {
     settings.applySettings();
     beginShape();
@@ -26,43 +28,77 @@ class Entity
     endShape(CLOSE);
   }
 
-  void update() //<>//
+  void update()
+  {
+    resolveCollisionsBeforeMove();
+    direction.set(vel);
+    pos.add(vel);
+    resolveCollisionsAfterMove();
+  }
+
+  // supporting Methods ---------- Supporting Methods \\
+
+  void applyCollisionAction(Entity e)  // change this to change behaviour of entity after a collision
+  {
+    PVector toTarget = PVector.sub(pos, e.pos);
+    moveInDirection(toTarget, 5);
+  }
+
+  void resolveCollisionsBeforeMove()
   {
     CollisionCell[] inCells = collisionMesh.getCells(getTransformedVertices());
     int[] objectIds = getIdsOfEntitiesInCells(inCells);
+    Entity[] colidingEntities = getColidingEntities(objectIds);
 
-    boolean isCollision = false;
-    for ( int i = 0; i < objectIds.length; i++ )
+    for (int i = 0; i < colidingEntities.length; i++)
     {
-      int index = map.getEntityIndexById(objectIds[i]);
-
-      if (index != -1)
-      {
-        Entity currentEntity = map.getEntity(index);
-
-        if ( ID != currentEntity.getID() && collision.isCollision( currentEntity.getTransformedVertices(), this.getTransformedVertices() ) )
-        { 
-          PVector toTarget = PVector.sub(pos, currentEntity.pos);
-          moveInDirection(toTarget, 5);
-          if ( tmpDebug )
-          {
-            color rand = color(random(0, 255), random(0, 255), random(0, 255));
-            currentEntity.settings.col = rand;
-            settings.col = rand;
-            tmpDebug = false;
-          }
-          isCollision = true;
-          break;
-        }
-      }
+      applyCollisionAction(colidingEntities[i]);
     }
-    direction.set(vel);
-    pos.add(vel);
-    inCells = collisionMesh.getCells(getTransformedVertices()); // update in which cells the entity is in
+  }
+
+  void resolveCollisionsAfterMove()
+  {
+    CollisionCell[] inCells = collisionMesh.getCells(getTransformedVertices()); // update in which cells the entity is in
     addIdToCells(inCells);
   }
 
-  int[] getIdsOfEntitiesInCells(CollisionCell[] inCells)       //<>//
+  Entity[] getColidingEntities(int[] objectIds)
+  {
+    Entity[] colidingEntities = new Entity[0];
+    for ( int i = 0; i < objectIds.length; i++ )
+    {
+      int index = map.getEntityIndexById(objectIds[i]);
+      if (index != -1)
+      {
+        Entity currentEntity = map.getEntity(index);
+        if (isColidingWith(currentEntity))
+        {
+          colidingEntities = (Entity[])append(colidingEntities, currentEntity);
+        }
+      }
+    }
+    return colidingEntities;
+  }
+
+  Boolean isColidingWith(Entity e)
+  {
+    boolean isCollision = false;
+    if ( ID != e.getID() && collision.isCollision( e.getTransformedVertices(), this.getTransformedVertices() ) )
+    { 
+      if ( tmpDebug )
+      {
+        color rand = color(random(0, 255), random(0, 255), random(0, 255));
+        e.settings.col = rand;
+        settings.col = rand;
+        printDebug();
+        tmpDebug = false;
+      }
+      isCollision = true;
+    }
+    return isCollision;
+  }
+
+  int[] getIdsOfEntitiesInCells(CollisionCell[] inCells)      
   {
     int[] objectIds = new int[0];
     for (int i = 0; i < inCells.length; i++)
@@ -75,7 +111,7 @@ class Entity
     return objectIds;
   }
 
-  void addIdToCells(CollisionCell[] inCells)           //<>//
+  void addIdToCells(CollisionCell[] inCells)          
   {
     for (int i = 0; i < inCells.length; i++) 
     {
@@ -83,7 +119,7 @@ class Entity
     }
   }
 
-  void moveToPos(float x, float y)                   //<>//
+  void moveToPos(float x, float y)                  
   {
 
     if ( dist(x, y, pos.x, pos.y) < 0.1) // check if arrived at target
@@ -102,7 +138,7 @@ class Entity
     vel.set(resultantVector);
   }
 
-  void moveInDirection(PVector dir, float speedMult)         //<>//
+  void moveInDirection(PVector dir, float speedMult)        
   {
     float speedTemp = speed * speedMult;
     speedTemp /= frameRate;
@@ -112,7 +148,7 @@ class Entity
     vel.set(dir);
   }
 
-  ArrayList< PVector > getTransformedVertices()         //<>//
+  ArrayList< PVector > getTransformedVertices()        
   {
     PVector vertex;
     ArrayList< PVector > transformedVertices = new ArrayList< PVector >();
@@ -132,26 +168,26 @@ class Entity
     return transformedVertices;
   }
 
-  PVector getPos() {           //<>//
+  PVector getPos() {          
     return pos;
   }
-  void setPos( float x, float y ) {   //<>//
+  void setPos( float x, float y ) {  
     pos.set(x, y);
   }
-  void setPos( PVector v ) {   //<>//
+  void setPos( PVector v ) {  
     pos.set(v);
   }
-  int getID() {               //<>//
+  int getID() {              
     return ID;
   }
-  void setVel(PVector dir) {   //<>//
+  void setVel(PVector dir) {  
     vel.set(dir);
   }
-  String getEntityType() {     //<>//
+  String getEntityType() {    
     return type;
   }
 
-  void printDebug()           //<>//
+  void printDebug()          
   {
     for ( int i = 0; i < vertices.size(); i++ )
     {
@@ -223,7 +259,7 @@ class Entity
   } // loadDataFromFile
 } // class Entity
 
-// WALL \\
+// WALL  --------------------------------------------------------------------------------- WALL \\
 
 class Wall extends Entity
 {
@@ -266,7 +302,7 @@ class Wall extends Entity
   }
 }
 
-// TRIBUTE \\
+// TRIBUTE  --------------------------------------------------------------------------------- TRIBUTE \\
 
 class Tribute extends Entity
 {
@@ -302,6 +338,37 @@ class Tribute extends Entity
     super.display();
     textSize(10);
     text(getID(), pos.x - 10, pos.y - 15);
+  }
+
+  Boolean isColidingWith(Entity e)
+  {
+    boolean isCollision = false;
+    if (e instanceof Weapon) 
+    {
+      Weapon eW = (Weapon)e;
+      
+      if (eW.isAttacking && eW.ownerID != getID())
+      {
+        if ( getID() != e.getID() && collision.isCollision( e.getTransformedVertices(), this.getTransformedVertices() ) )
+        { 
+          if ( tmpDebug )
+          {
+            color rand = color(random(0, 255), random(0, 255), random(0, 255));
+            e.settings.col = rand;
+            settings.col = rand;
+            printDebug();
+            tmpDebug = false;
+          }
+          isCollision = false;
+        }
+      } else if (!eW.isAttacking)
+      {
+        isCollision = false;
+      }
+      return isCollision;
+    }
+
+    return isCollision;
   }
 
   private int health;

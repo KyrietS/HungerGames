@@ -20,7 +20,7 @@
 		<vertex x="-2" y="1"/>
 		<color value="#FF0059" />
 	</entity>
-	<entity type="Weapon">
+	<entity type="Weapon1">
   		<vertex x="0.0" y="0.0"/>
     		<vertex x="-1.0" y="-1.0"/>
     		<vertex x="-1.0" y="-2.0"/>
@@ -39,5 +39,13 @@
     		<vertex x="1.0" y="-1.0"/>
     		<anchor-point x="0.0" y="0.0"/>
     		<color value="#C22C0E"/>
+  	</entity>
+  	<entity type="Weapon">
+   		<vertex x="-1.0" y="0.0"/>
+   		<vertex x="-1.0" y="-6.0"/>
+		<vertex x="1.0" y="-6.0"/>
+  		<vertex x="1.0" y="0.0"/>
+  		<anchor-point x="0.0" y="0.0"/>
+  		<color value="#C22C0E"/>
   	</entity>
 </entities>

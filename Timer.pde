@@ -9,9 +9,10 @@ class Timer{
    timeNow = millis();
  }
  
- boolean passed(){
+ boolean passed()
+ {
    boolean passed = false;
-   if(float(timeNow - timeStart) > delay)
+   if(float(timeNow - timeStart) >= delay)
    {
      passed = true;
    }
@@ -31,5 +32,10 @@ class Timer{
   int getTime()
   {
     return timeNow - timeStart;
+  }
+  
+  void setDelay(float d)
+  {
+    delay = d;
   }
 }
