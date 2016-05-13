@@ -250,6 +250,7 @@ class Entity
   } // loadDataFromFile
 } // class Entity
 
+// WALL \\
 
 class Wall extends Entity
 {
@@ -292,6 +293,8 @@ class Wall extends Entity
   }
 }
 
+// TRIBUTE \\
+
 class Tribute extends Entity
 {
   Tribute(int x, int y)
@@ -332,6 +335,9 @@ class Tribute extends Entity
   private float stamina;
 }
 
+
+// WEAPON \\
+
 class Weapon extends Entity
 {
   Weapon(int x, int y)
@@ -348,6 +354,7 @@ class Weapon extends Entity
       if (vertices.get(i).y < highestY) // find the vertex with highest y coordinate
       {
         highestY = vertices.get(i).y;
+        tipVertex = i;
       } else if (vertices.get(i).y < lowestY) // find the vertex with lowest y coordinate at the same time
       {
         lowestY = vertices.get(i).x;
@@ -360,9 +367,10 @@ class Weapon extends Entity
     float arcLength =  ( ( abs(swingInitialAngle) + abs(swingFinalAngle) ) /360 ) * PI * range * 2; // calculate the distance the tip of the weapon will travel (x/360 * circumference of circle)
     swingTimer = new Timer(arcLength/(swingSpeed/frameRate)); // create a timer object, used later to controll swings, with a delay equal to d/(v/frameRate)
     pressed = false;
-    
+
     // set direction to random
-    direction.set(PVector.fromAngle(random(0,TWO_PI)));
+
+    direction.set(PVector.fromAngle(random(0, TWO_PI)));
   }
 
   void update()
@@ -373,43 +381,51 @@ class Weapon extends Entity
       pressed = true;
     }
 
-    if (!isAttacking && ownerID != -1) return;
-    // check collisions \\
-
-    CollisionCell[] inCells = collisionMesh.getCells(getTransformedVertices()); // get data about which cells in the collision grid the entity is located in
-
-    int[] objectIds = new int[0];
-    boolean isCollision = false;
-    for (int i = 0; i < inCells.length; i++)
+    if (isAttacking || ownerID == -1)
     {
-      for (int j = 0; j < inCells[i].getObjectsIds().length; j++)
+      // check collisions \\
+
+      CollisionCell[] inCells = collisionMesh.getCells(getTransformedVertices()); // get data about which cells in the collision grid the entity is located in
+      int[] objectIds = new int[0];
+      boolean isCollision = false;
+      for (int i = 0; i < inCells.length; i++)
       {
-        objectIds = (int[])append(objectIds, inCells[i].getObjectsIds()[j]);  // accumulate all the nearby objects by collecting data from all cells which the entity is in
-      }
-    }
-
-    for ( int i = 0; i < objectIds.length; i++ )
-    {
-      int index = map.getEntityIndexById(objectIds[i]);
-      if (index != -1) // if entity is found
-      {
-        Entity currentEntity = map.getEntity(index);
-
-        if ( getID() != currentEntity.getID() && collision.isCollision( currentEntity.getTransformedVertices(), this.getTransformedVertices() ) )
-        { 
-          if (ownerID == -1) ownerID = currentEntity.getID();
-
-          if ( tmpDebug )
-          {
-            color rand = color(random(0, 255), random(0, 255), random(0, 255));
-            currentEntity.settings.col = rand;
-            settings.col = rand;
-            tmpDebug = false;
-          }
-
-          isCollision = true;
-          break;
+        for (int j = 0; j < inCells[i].getObjectsIds().length; j++)
+        {
+          objectIds = (int[])append(objectIds, inCells[i].getObjectsIds()[j]);  // accumulate all the nearby objects by collecting data from all cells which the entity is in
         }
+      }
+
+      for ( int i = 0; i < objectIds.length; i++ )
+      {
+        int index = map.getEntityIndexById(objectIds[i]);
+        if (index != -1) // if entity is found
+        {
+          Entity currentEntity = map.getEntity(index);
+
+          if ( getID() != currentEntity.getID() && currentEntity.getID() != ownerID && collision.isCollision( currentEntity.getTransformedVertices(), this.getTransformedVertices() ) )
+          { 
+            if (!getClassName(currentEntity).equals("Weapon"))
+            {
+              if (ownerID == -1) ownerID = currentEntity.getID();
+            }
+            if ( tmpDebug )
+            {
+              color rand = color(random(0, 255), random(0, 255), random(0, 255));
+              currentEntity.settings.col = rand;
+              settings.col = rand;
+              tmpDebug = false;
+            }
+
+            isCollision = true;
+            break;
+          }
+        }
+      }
+      inCells = collisionMesh.getCells(getTransformedVertices()); // update in which cells the entity is in
+      for (int i = 0; i < inCells.length; i++) 
+      {
+        inCells[i].addEntity(getID()); // add entities location to the cell at new position
       }
     }
     // check timers
@@ -451,7 +467,7 @@ class Weapon extends Entity
   {
     PVector vertex;
     ArrayList< PVector > transformedVertices = new ArrayList< PVector >();
-    if(ownerID != -1)
+    if (ownerID != -1)
       direction.set(map.getEntity(map.getEntityIndexById(ownerID)).direction); // set direction to parents direction, every rotation will be relative to parent
     for ( int i = 0; i < vertices.size(); i++ )
     {
@@ -478,10 +494,10 @@ class Weapon extends Entity
   protected float range;                    // the range of the weapon from point 0,0 on the parent object - the anchor point on weapons should be kept at the handle
   protected float effectiveRange = 0;       // from the 0,0 point on the parent object the distance to the 'blade' of the weapon, at this point and further the weapon is the most effective
   protected float power = 0;                // the main attribute deciding about actuall damage
-  protected float swingSpeed = 0.2;           // the velocity of the swing
+  protected float swingSpeed = 0.02;           // the velocity of the swing
   protected float swingInitialAngle = PI/4;        // the starting angle of the swing in radians
   protected float swingFinalAngle = -PI/4;          // the final angle of swing in radians
   protected int ownerID = -1;               // the ID of the parent object
   protected boolean isAttacking = false;    // is the weapon in use
-  protected float[] animationAngles;        // stores the angle of rotation in relation to the direction of the parent, each index is one frame
+  protected int tipVertex;             // the position of the tip vertex in the array vertices, for later calculations of realistic bouncing
 }
