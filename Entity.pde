@@ -141,12 +141,9 @@ class Entity
       vertex.mult(scale);
       vertex.add( anchorPoint );
       float angle = PVector.angleBetween(new PVector(0, -1), direction); // calculate the angle from vector pointing upwards to the direction
-      if (direction.x > 0)                                             // if the direction is to the right, rotate right. otherwise if it is to the left rotate to the left
-        vertex.rotate(angle);
-      else if (direction.x < 0)
-        vertex.rotate(-angle);
-      else {
-      }                                                           // if the direction is the same as the vector up, do nothing
+      if(direction.x < 0) angle = -angle;   // if the direction is to the right, rotate right. otherwise if it is to the left rotate to the left
+      else if(direction.x == 0) angle = 0;   // if the direction is the same as the vector up, do nothing           
+      vertex.rotate(angle);                                                      
       vertex.add( pos );
       transformedVertices.add( new PVector( vertex.x, vertex.y ) );
     }
@@ -476,13 +473,10 @@ class Weapon extends Entity
       vertex.mult(scale);
       vertex.add( anchorPoint );
       float angle = PVector.angleBetween(new PVector(0, -1), direction);               // calculate the angle from vector pointing upwards to the screen
-      if (isAttacking) angle += getAngleAtTime(swingTimer.getTime()) + swingFinalAngle; // if swinging add the angle of rotation at current point of time relative to final angle due
-      if (direction.x > 0)                                                             // if the direction is to the right, rotate right. otherwise if it is to the left rotate to the left
-        vertex.rotate(angle);
-      else if (direction.x < 0)
-        vertex.rotate(-angle);
-      else {
-      }                                   // if the direction is the same as the vector up, do nothing
+      if(direction.x < 0) angle = -angle;
+      else if(direction.x == 0) angle = 0; // if the direction is to the right, rotate right. otherwise if it is to the left rotate to the left
+      if (isAttacking) angle += getAngleAtTime(swingTimer.getTime()) + swingFinalAngle; // if swinging add the angle of rotation at current point of time relative to final angle due                                                     
+      vertex.rotate(angle);                            
       vertex.add( pos );
       transformedVertices.add( new PVector( vertex.x, vertex.y ) );
     }
@@ -494,7 +488,7 @@ class Weapon extends Entity
   protected float range;                    // the range of the weapon from point 0,0 on the parent object - the anchor point on weapons should be kept at the handle
   protected float effectiveRange = 0;       // from the 0,0 point on the parent object the distance to the 'blade' of the weapon, at this point and further the weapon is the most effective
   protected float power = 0;                // the main attribute deciding about actuall damage
-  protected float swingSpeed = 0.02;           // the velocity of the swing
+  protected float swingSpeed = 0.2;           // the velocity of the swing
   protected float swingInitialAngle = PI/4;        // the starting angle of the swing in radians
   protected float swingFinalAngle = -PI/4;          // the final angle of swing in radians
   protected int ownerID = -1;               // the ID of the parent object
