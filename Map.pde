@@ -12,6 +12,7 @@ class Map
   {
     int newID = findMax(entities) + 1;
     e.ID = newID;
+    e.collisionsGroup = newID;
     entities.add( e );
   }
   
