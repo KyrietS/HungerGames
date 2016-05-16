@@ -1,7 +1,10 @@
 class CollisionMesh
 {
+  ArrayList<CollisionEvent> collisionEvents;
+  
   CollisionMesh(float xBoxes, float yBoxes)
   {
+    collisionEvents = new ArrayList<CollisionEvent>(0);
     size.set(xBoxes, yBoxes);
     boxSize = new PVector(width/size.x, height/size.y);
     for (int y = 0; y < size.y; y++)
@@ -68,11 +71,28 @@ class CollisionMesh
       cells[i].removeAllEntities();
     }
   }
-
+  
+  void addCollisionEvent(Entity e1, Entity e2)
+  {
+    collisionEvents.add(new CollisionEvent(e1,e2));
+  }
+  
+  void resolveCollisions()
+  {
+    for(int i = 0; i < collisionEvents.size(); i++)
+    {
+      collisionEvents.get(i).entity1.resolveCollision(collisionEvents.get(i).entity2);
+      collisionEvents.get(i).entity2.resolveCollision(collisionEvents.get(i).entity1);
+      collisionEvents.remove(i);
+    }
+  }
+  
   private CollisionCell[] cells = new CollisionCell[0]; 
   private PVector size = new PVector(10, 10); // number of boxes across width and height
   private PVector boxSize;
 }
+
+// CollisionCell --------------- CollisionCell \\
 
 class CollisionCell
 {
@@ -122,6 +142,20 @@ class CollisionCell
   private PVector vertexLeftUp = new PVector(0, 0), vertexRightDown = new PVector(0, 0);
   private IntList entityIds;
 }
+// CollisionEvent --------------- CollisionEvent \\
+
+class CollisionEvent
+{
+  CollisionEvent(Entity e1, Entity e2)
+  {
+   entity1 = e1;
+   entity2 = e2;
+  }
+  Entity entity1;
+  Entity entity2;
+}
+
+// CollisionSystem --------------- CollisionSystem \\
 
 class CollisionSystem
 {

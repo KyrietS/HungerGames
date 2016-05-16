@@ -42,7 +42,9 @@ void keyReleased()
 
 void draw()
 {
+  collisionMesh.resolveCollisions();
   map.updateAll();
+  map.clearBuffer();
   map.displayAll();
   map.moveToMouseALl();
   collisionMesh.displayMesh();
