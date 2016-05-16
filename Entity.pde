@@ -30,33 +30,33 @@ class Entity
 
   void update()
   {
-    resolveCollisionsBeforeMove();
+    handleCollisionsBeforeMove();
     direction.set(vel);
     pos.add(vel);
-    resolveCollisionsAfterMove();
+    handleCollisionsAfterMove();
   }
 
   // supporting Methods ---------- Supporting Methods \\
 
-  void applyCollisionAction(Entity e)  // change this to change behaviour of entity after a collision
+  void resolveCollision(Entity e)  // change this to change behaviour of entity after a collision
   {
     PVector toTarget = PVector.sub(pos, e.pos);
-    moveInDirection(toTarget, 5);
+    toTarget.div(2);
+    moveInDirection(toTarget, 1);
   }
 
-  void resolveCollisionsBeforeMove()
+  void handleCollisionsBeforeMove()
   {
     CollisionCell[] inCells = collisionMesh.getCells(getTransformedVertices());
-    println(inCells.length);
     int[] objectIds = getIdsOfEntitiesInCells(inCells);
     Entity[] colidingEntities = getColidingEntities(objectIds);
     for (int i = 0; i < colidingEntities.length; i++)
     {
-      applyCollisionAction(colidingEntities[i]);
+      collisionMesh.addCollisionEvent(this, colidingEntities[i]); //resolveCollision(colidingEntities[i]);
     }
   }
 
-  void resolveCollisionsAfterMove()
+  void handleCollisionsAfterMove()
   {
     CollisionCell[] inCells = collisionMesh.getCells(getTransformedVertices()); // update in which cells the entity is in
     addIdToCells(inCells);
@@ -67,13 +67,16 @@ class Entity
     Entity[] colidingEntities = new Entity[0];
     for ( int i = 0; i < objectIds.length; i++ )
     {
-      int index = map.getEntityIndexById(objectIds[i]);
-      if (index != -1)
+      if (objectIds[i] != ID)
       {
-        Entity currentEntity = map.getEntity(index);
-        if (isColidingWith(currentEntity))
+        int index = map.getEntityIndexById(objectIds[i]);
+        if (index != -1)
         {
-          colidingEntities = (Entity[])append(colidingEntities, currentEntity);
+          Entity currentEntity = map.getEntity(index);
+          if (isColidingWith(currentEntity))
+          {
+            colidingEntities = (Entity[])append(colidingEntities, currentEntity);
+          }
         }
       }
     }
@@ -186,7 +189,9 @@ class Entity
   String getEntityType() {    
     return type;
   }
-
+  void deconstruct()
+  {
+  }
   void printDebug()          
   {
     for ( int i = 0; i < vertices.size(); i++ )
@@ -308,11 +313,13 @@ class Wall extends Entity
 
 class Tribute extends Entity
 {
+  IntList weaponIds;
   Tribute(int x, int y)
   {
     super("Tribute", x, y);
     health = 100;
     stamina = 100;
+    weaponIds = new IntList();
   }
 
   void moveToPos(float x, float y)
@@ -329,12 +336,18 @@ class Tribute extends Entity
   void update()
   {
     if (health < 0)
-      map.removeEntity(getID());
+    {
+      map.addEntityToRemoveBuffer(this);
+    }
     super.update();
     stamina += 9/frameRate; // 10 is the walking speed, only use a small amount of stamina for walking by replenishing 9 instead of 10
     stamina = clamp(stamina, -20, 100);
   }
 
+  void deconstruct()
+  {
+    dropWeapon();
+  }
   void display()
   {
     super.display();
@@ -342,6 +355,20 @@ class Tribute extends Entity
     text(getID(), pos.x - 10, pos.y - 15);
   }
 
+  void addWeapon(int id)
+  {
+    weaponIds.append(id);
+  }
+
+  void dropWeapon()
+  {
+    if (weaponIds.size() > 0)
+    {
+      Weapon w = (Weapon)map.getEntity(map.getEntityIndexById(weaponIds.get(0)));
+      w.ownerID = -1;
+      weaponIds.remove(0);
+    }
+  }
   private int health;
   private float stamina;
 }

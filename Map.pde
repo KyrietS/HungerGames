@@ -27,6 +27,7 @@ class Map
   
   Entity getEntity( int index )
   {
+    if(index == -1){return null;}
     return entities.get( index );
   }
   
@@ -97,6 +98,21 @@ class Map
     }  
   }
   
+  void addEntityToRemoveBuffer(Entity e)
+  {
+    removeBuffer.add(e);
+  }
+  
+  void clearBuffer()
+  {
+    for(int i = 0; i < removeBuffer.size(); i++)
+    {
+      removeBuffer.get(i).deconstruct();
+      removeEntity(removeBuffer.get(i)); 
+      removeBuffer.remove(i);
+    }
+  }
+  
   void setColor(color Color)
   {
     image.loadPixels();
@@ -106,13 +122,12 @@ class Map
     }
     image.updatePixels();
   }
-  
   private ArrayList<Entity> entities = new ArrayList<Entity>();
+  private ArrayList<Entity> removeBuffer = new ArrayList<Entity>();
   private color backgroundColor;
   private PImage image;
   private PVector dimensions;
   private boolean debugMode;
-  
   private boolean loadFromFile()
   {
     XML file = loadXML("data/Map.xml");
