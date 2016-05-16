@@ -28,4 +28,16 @@
     <anchor-point x="0.0" y="0.0"/>
     <color value="#C22C0E"/>
   </entity>
+  <entity name="untitled1">
+    <vertex x="0.0" y="1.0"/>
+    <vertex x="-1.0" y="0.0"/>
+    <vertex x="-1.0" y="-1.0"/>
+    <vertex x="0.0" y="-2.0"/>
+    <vertex x="0.0" y="-6.0"/>
+    <vertex x="1.0" y="-7.0"/>
+    <vertex x="1.0" y="0.0"/>
+    <vertex x="1.0" y="1.0"/>
+    <anchor-point x="0.0" y="0.0"/>
+    <color value="#C22C0E"/>
+  </entity>
 </entities>

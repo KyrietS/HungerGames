@@ -1,7 +1,7 @@
 //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>// //<>//
 class Entity
 {
-  boolean tmpDebug = true;
+  boolean tmpDebug = false;
   Settings settings = new Settings(#000000, #000000, 1, MITER, PROJECT);
   Entity(String _type, int x, int y)
   {
@@ -47,9 +47,9 @@ class Entity
   void resolveCollisionsBeforeMove()
   {
     CollisionCell[] inCells = collisionMesh.getCells(getTransformedVertices());
+    println(inCells.length);
     int[] objectIds = getIdsOfEntitiesInCells(inCells);
     Entity[] colidingEntities = getColidingEntities(objectIds);
-
     for (int i = 0; i < colidingEntities.length; i++)
     {
       applyCollisionAction(colidingEntities[i]);
@@ -83,7 +83,7 @@ class Entity
   Boolean isColidingWith(Entity e)
   {
     boolean isCollision = false;
-    if ( ID != e.getID() && collision.isCollision( e.getTransformedVertices(), this.getTransformedVertices() ) )
+    if ( e.collisionsEnabled && e.collisionsGroup != collisionsGroup && ID != e.getID() && collision.isCollision( e.getTransformedVertices(), this.getTransformedVertices() ) )
     { 
       if ( tmpDebug )
       {
@@ -205,6 +205,8 @@ class Entity
   protected PVector vel = new PVector(0, 0);
   protected ArrayList< PVector > vertices = new ArrayList< PVector >();
   protected String type = "None";
+  protected boolean collisionsEnabled = true;
+  protected int collisionsGroup;
 
   private boolean loadFromFile()  // Load data from file: "data\Entity.xml". More info about specification of the file can be found in Docs.
   {
@@ -338,37 +340,6 @@ class Tribute extends Entity
     super.display();
     textSize(10);
     text(getID(), pos.x - 10, pos.y - 15);
-  }
-
-  Boolean isColidingWith(Entity e)
-  {
-    boolean isCollision = false;
-    if (e instanceof Weapon) 
-    {
-      Weapon eW = (Weapon)e;
-      
-      if (eW.isAttacking && eW.ownerID != getID())
-      {
-        if ( getID() != e.getID() && collision.isCollision( e.getTransformedVertices(), this.getTransformedVertices() ) )
-        { 
-          if ( tmpDebug )
-          {
-            color rand = color(random(0, 255), random(0, 255), random(0, 255));
-            e.settings.col = rand;
-            settings.col = rand;
-            printDebug();
-            tmpDebug = false;
-          }
-          isCollision = false;
-        }
-      } else if (!eW.isAttacking)
-      {
-        isCollision = false;
-      }
-      return isCollision;
-    }
-
-    return isCollision;
   }
 
   private int health;

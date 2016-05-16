@@ -1,4 +1,4 @@
-// WEAPON \\ re-do collisions like in entity
+// WEAPON \\ 
 class Weapon extends Entity
 {
   boolean pressed;
@@ -6,7 +6,7 @@ class Weapon extends Entity
   Weapon(int x, int y)
   {
     super("Weapon", x, y);
-    scale = 2;
+    scale = 5;
     animationTimer = new Timer(animationLength);
   }
 
@@ -17,13 +17,19 @@ class Weapon extends Entity
       startAnimation();
       pressed = true;
     }
+    
+    if (!isAttacking && ownerID != -1)
+      collisionsEnabled = false;
+    else
+     collisionsEnabled = true; 
+     
     resolveCollisionsBeforeMove();
     if (ownerID != -1)
     {
       pos.set(map.getEntity(map.getEntityIndexById(ownerID)).pos);
     }
     resolveCollisionsAfterMove();
-
+    
     if (!isAttacking) return;
     animationTimer.update();
     if (animationTimer.passed())
@@ -35,7 +41,7 @@ class Weapon extends Entity
 
   void display()
   {
-    //if (!isAttacking && ownerID != -1) return;
+    if (!isAttacking && ownerID != -1) return;
     super.display();
   }
 
@@ -43,25 +49,27 @@ class Weapon extends Entity
   {
     if ( !(e instanceof Weapon) )
     {
+
       if (ownerID == -1) 
       {
-         ownerID = e.getID();
+        ownerID = e.getID();
+        collisionsGroup = e.collisionsGroup;
       }
-    }
-    if( e.getEntityType() == "Tribute" && ownerID != -1 && e.getID() != ownerID && isAttacking)
-    {
+
+      if ( e instanceof Tribute && ownerID != -1 && e.getID() != ownerID && isAttacking)
+      {
         Tribute eT = (Tribute)e;
         eT.health -= power;
-        println(eT.health);
+      }
     }
   }
-  
+
   void startAnimation()
   {
     animationTimer.set(); // zero the timer
     isAttacking = true;
   }
-  
+
   Boolean isColidingWith(Entity e)
   {
     boolean isCollision = false;
@@ -94,8 +102,8 @@ class Weapon extends Entity
       float angle = PVector.angleBetween(new PVector(0, -1), direction);
       if (direction.x < 0) angle = -angle;
       else if (direction.x == 0) angle = 0;
-      if (isAttacking) angle += angleOffset;                                                  
-      vertex.rotate(angle);                            
+      if (isAttacking) angle += angleOffset;
+      vertex.rotate(angle);     
       vertex.add( pos );
       transformedVertices.add( new PVector( vertex.x, vertex.y ) );
     }
@@ -107,7 +115,7 @@ class Weapon extends Entity
   protected float animationSpeed = 0.1;       // speed in pixels per second 
   protected float range;                    // the range of the weapon from point 0,0 on the parent object - the anchor point on weapons should be kept at the handle
   protected float effectiveRange = 0;       // from the 0,0 point on the parent object the distance to the 'blade' of the weapon, at this point and further the weapon is the most effective
-  protected float power = 100;                // the main attribute deciding about actuall damage
+  protected float power = 5;                // the main attribute deciding about actuall damage
   protected int ownerID = -1;               // the ID of the parent object
   protected boolean isAttacking = false;    // is the weapon in use
   protected float angleOffset =0;
