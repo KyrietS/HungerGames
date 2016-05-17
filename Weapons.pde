@@ -3,7 +3,7 @@ class Weapon extends Entity
 {
   boolean pressed;
   boolean attacked;
-  
+
   Weapon(int x, int y)
   {
     super("Weapon", x, y);
@@ -13,34 +13,31 @@ class Weapon extends Entity
 
   void update()
   {
-    //if(map.getEntityIndexById(ownerID) == -1) ownerID = -1;
     animationTimer.update();
-    if (isAttacking)
+    if (isAttacking && animationTimer.passed())
     {
-      if (animationTimer.passed())
-      {
-        isAttacking = false; 
-        pressed = false;
-      }
+      isAttacking = false; 
+      pressed = false;
     }
 
-    if (mousePressed && !pressed && ownerID != -1) 
+    if (mousePressed && !pressed) 
     {
-      startAnimation();
+      if (owner != null)
+        startAnimation();
       pressed = true;
     }
 
-    if (!isAttacking && ownerID != -1)
+    if (!isAttacking)
       collisionsEnabled = false;
     else
       collisionsEnabled = true; 
 
-    if (collisionsEnabled)
+    if (owner == null || isAttacking)
     {
       handleCollisionsBeforeMove();
-      if (ownerID != -1)
+      if (owner != null)
       {
-        pos.set(map.getEntity(map.getEntityIndexById(ownerID)).pos);
+        pos.set(owner.getPos());
       }
       handleCollisionsAfterMove();
     }
@@ -48,7 +45,7 @@ class Weapon extends Entity
 
   void display()
   {
-    if (!isAttacking && ownerID != -1) return;
+    if (!isAttacking && owner!= null) return;
     super.display();
   }
 
@@ -57,14 +54,14 @@ class Weapon extends Entity
     if ( !(e instanceof Weapon) )
     {
       Tribute eT = (Tribute)e;
-      if (ownerID == -1 && e instanceof Tribute && eT.weaponIds.size() < 1) 
+      if (owner == null && e instanceof Tribute && eT.weapons.size() < 1) 
       {
-        ownerID = e.getID();
-        collisionsGroup = e.collisionsGroup;
-        
-        eT.addWeapon(getID());
+        owner = e;
+        collisionsGroup = owner.collisionsGroup;
+
+        eT.addWeapon(this);
       }
-      if ( e instanceof Tribute && ownerID != -1 && e.getID() != ownerID && isAttacking && !attacked)
+      if ( e instanceof Tribute && owner != null && e.getID() != owner.getID() && isAttacking && !attacked)
       {
         eT.health -= power;
         attacked = true;
@@ -82,28 +79,41 @@ class Weapon extends Entity
   Boolean isColidingWith(Entity e)
   {
     boolean isCollision = false;
-    if (e.getID() != ownerID && getID() != e.getID() && collision.isCollision( e.getTransformedVertices(), this.getTransformedVertices() ) )
-    { 
-      if ( tmpDebug )
-      {
-        color rand = color(random(0, 255), random(0, 255), random(0, 255));
-        e.settings.col = rand;
-        settings.col = rand;
-        tmpDebug = false;
+    if (owner != null && e.getID() != owner.getID())
+    {
+      if (getID() != e.getID() && collision.isCollision( e.getTransformedVertices(), this.getTransformedVertices() ) )
+      { 
+        if ( tmpDebug )
+        {
+          color rand = color(random(0, 255), random(0, 255), random(0, 255));
+          e.settings.col = rand;
+          settings.col = rand;
+          tmpDebug = false;
+        }
+        isCollision = true;
       }
-      isCollision = true;
+    } else if (owner == null)
+    {
+      if (getID() != e.getID() && collision.isCollision( e.getTransformedVertices(), this.getTransformedVertices() ) )
+      { 
+        if ( tmpDebug )
+        {
+          color rand = color(random(0, 255), random(0, 255), random(0, 255));
+          e.settings.col = rand;
+          settings.col = rand;
+          tmpDebug = false;
+        }
+        isCollision = true;
+      }
     }
     return isCollision;
   }
-
   ArrayList< PVector > getTransformedVertices()
   {
     PVector vertex;
     ArrayList< PVector > transformedVertices = new ArrayList< PVector >();
-    if (ownerID != -1)
-    {
-       direction.set(map.getEntity(map.getEntityIndexById(ownerID)).direction); // set direction to parents direction, every rotation will be relative to parent
-    }
+    if (owner != null)
+      direction.set(owner.direction); // set direction to parents direction, every rotation will be relative to parent
     for ( int i = 0; i < vertices.size(); i++ )
     {
       vertex = new PVector( vertices.get(i).x, vertices.get(i).y );
@@ -127,7 +137,7 @@ class Weapon extends Entity
   protected float range;                    // the range of the weapon from point 0,0 on the parent object - the anchor point on weapons should be kept at the handle
   protected float effectiveRange = 0;       // from the 0,0 point on the parent object the distance to the 'blade' of the weapon, at this point and further the weapon is the most effective
   protected float power = 10;                // the main attribute deciding about actuall damage
-  protected int ownerID = -1;               // the ID of the parent object
+  protected Entity owner = null;              // the owner
   protected boolean isAttacking = false;    // is the weapon in use
   protected float angleOffset =0;
   protected PVector posOffset = new PVector(0, 0);

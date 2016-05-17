@@ -31,7 +31,6 @@ class Entity
   void update()
   {
     handleCollisionsBeforeMove();
-    direction.set(vel);
     pos.add(vel);
     handleCollisionsAfterMove();
   }
@@ -42,7 +41,7 @@ class Entity
   {
     PVector toTarget = PVector.sub(pos, e.pos);
     toTarget.div(2);
-    moveInDirection(toTarget, 1);
+    moveInDirection(toTarget,1,false);
   }
 
   void handleCollisionsBeforeMove()
@@ -52,7 +51,7 @@ class Entity
     Entity[] colidingEntities = getColidingEntities(objectIds);
     for (int i = 0; i < colidingEntities.length; i++)
     {
-      collisionMesh.addCollisionEvent(this, colidingEntities[i]); //resolveCollision(colidingEntities[i]);
+      collisionMesh.addCollisionEvent(this, colidingEntities[i]); //resolveCollision(colidingEntities[i])
     }
   }
 
@@ -86,7 +85,8 @@ class Entity
   Boolean isColidingWith(Entity e)
   {
     boolean isCollision = false;
-    if ( e.collisionsEnabled && e.collisionsGroup != collisionsGroup && ID != e.getID() && collision.isCollision( e.getTransformedVertices(), this.getTransformedVertices() ) )
+
+    if (e.collisionsEnabled && e.collisionsGroup != collisionsGroup && ID != e.getID() && collision.isCollision( e.getTransformedVertices(), this.getTransformedVertices() ) )
     { 
       if ( tmpDebug )
       {
@@ -122,7 +122,7 @@ class Entity
     }
   }
 
-  void moveToPos(float x, float y)                  
+  void moveToPos(float x, float y,boolean pointAtVel)                  
   {
 
     if ( dist(x, y, pos.x, pos.y) < 0.1) // check if arrived at target
@@ -139,9 +139,11 @@ class Entity
     resultantVector.mult(speedTemp * random(0.5, 1.5));
     resultantVector.limit(speedTemp);
     vel.set(resultantVector);
+    if(pointAtVel)
+     direction.set(vel);
   }
 
-  void moveInDirection(PVector dir, float speedMult)        
+  void moveInDirection(PVector dir, float speedMult, boolean pointAtVel)        
   {
     float speedTemp = speed * speedMult;
     speedTemp /= frameRate;
@@ -149,6 +151,8 @@ class Entity
     dir.mult(speedTemp);
     dir.limit(speedTemp);
     vel.set(dir);
+    if(pointAtVel)
+     direction.set(vel);
   }
 
   ArrayList< PVector > getTransformedVertices()        
@@ -313,13 +317,13 @@ class Wall extends Entity
 
 class Tribute extends Entity
 {
-  IntList weaponIds;
+  ArrayList<Weapon> weapons;
   Tribute(int x, int y)
   {
     super("Tribute", x, y);
     health = 100;
     stamina = 100;
-    weaponIds = new IntList();
+    weapons = new ArrayList();
   }
 
   void moveToPos(float x, float y)
@@ -330,7 +334,7 @@ class Tribute extends Entity
       speed = 10; 
     if (vel.mag() != 0) // if not moving dont use stamina
       stamina -= speed/frameRate;
-    super.moveToPos(x, y);
+    super.moveToPos(x, y,true);
   }
 
   void update()
@@ -355,18 +359,17 @@ class Tribute extends Entity
     text(getID(), pos.x - 10, pos.y - 15);
   }
 
-  void addWeapon(int id)
+  void addWeapon(Weapon w)
   {
-    weaponIds.append(id);
+    weapons.add(w);
   }
 
   void dropWeapon()
   {
-    if (weaponIds.size() > 0)
+    if (weapons.size() > 0)
     {
-      Weapon w = (Weapon)map.getEntity(map.getEntityIndexById(weaponIds.get(0)));
-      w.ownerID = -1;
-      weaponIds.remove(0);
+      weapons.get(0).owner = null;
+      weapons.remove(0);
     }
   }
   private int health;

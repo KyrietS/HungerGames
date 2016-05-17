@@ -82,7 +82,6 @@ class CollisionMesh
     for(int i = 0; i < collisionEvents.size(); i++)
     {
       collisionEvents.get(i).entity1.resolveCollision(collisionEvents.get(i).entity2);
-      collisionEvents.get(i).entity2.resolveCollision(collisionEvents.get(i).entity1);
       collisionEvents.remove(i);
     }
   }
