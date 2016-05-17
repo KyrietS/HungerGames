@@ -94,7 +94,8 @@ class Map
   {
     for(int i = 0; i < entities.size(); i++)
     {
-      entities.get(i).moveToPos(mouseX,mouseY);
+      if(!(entities.get(i) instanceof Weapon))
+      entities.get(i).moveToPos(mouseX,mouseY,true);
     }  
   }
   
