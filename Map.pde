@@ -78,30 +78,18 @@ class Map
 
   void sortEntitiesByDisplayPriority()
   {
-    //println("---before---");
-    //  for (int i = 0; i < entities.size(); i++)                   // currently doesn't work, bug to fix
-    //{
-    //  println(entities.get(i).getEntityType());
-    //}
-    //println("---");
-    //  for (int j = 0; j < entities.size() - 1; j++)
-    //{
-    //  for (int i = 0; i < entities.size() - 1; i++)
-    //  {
-    //    if (entities.get(i).displayPriority > entities.get(i+1).displayPriority)
-    //    {
-    //      Entity eTemp = entities.get(i + 1);
-    //      entities.set(i + 1, entities.get(i));
-    //      entities.set(i, eTemp);
-    //    }
-    //  }
-    //}
-    //println("---after---");
-    //  for (int i = 0; i < entities.size(); i++)
-    //{
-    //  println(entities.get(i).getEntityType());
-    //}
-    //println("---");
+    for (int j = 0; j < entities.size() - 1; j++)
+    {
+      for (int i = 0; i < entities.size() - 1; i++)
+      {
+        if (entities.get(i).displayPriority > entities.get(i+1).displayPriority)
+        {
+          Entity eTemp = entities.get(i + 1);
+          entities.set(i + 1, entities.get(i));
+          entities.set(i, eTemp);
+        }
+      }
+    }
   }
 
   void displayAll()
@@ -129,7 +117,13 @@ class Map
         entities.get(i).moveToPos(mouseX, mouseY, true);
     }
   }
-
+  void updateCellsAll()
+  {
+    for (int i = 0; i < entities.size(); i++)
+    {
+      entities.get(i).updateCells();
+    }
+  }
   void addEntityToRemoveBuffer(Entity e)
   {
     removeBuffer.add(e);

@@ -1,38 +1,38 @@
 // functions to be used all around the code
-int clamp(int value, int min , int max) // limit value to a range
+int clamp(int value, int min, int max) // limit value to a range
 {
-  if(value > max)
-   value = max;
-  else if(value < min)
-   value = min;
+  if (value > max)
+    value = max;
+  else if (value < min)
+    value = min;
   return value;
 }
 
-float clamp(float value, float min , float max)
+float clamp(float value, float min, float max)
 {
-  if(value > max)
-   value = max;
-  else if(value < min)
-   value = min;
+  if (value > max)
+    value = max;
+  else if (value < min)
+    value = min;
   return value;
 }
 
 PVector clamp(PVector value, float minX, float maxX, float minY, float maxY)
 {
-  if(value.x > maxX)
-   value.x = maxX;
-  else if(value.x < minX)
-   value.x = minX;
-  if(value.y > maxY)
-   value.y = maxY;
-  else if(value.y < minY)
-   value.y = minY;
+  if (value.x > maxX)
+    value.x = maxX;
+  else if (value.x < minX)
+    value.x = minX;
+  if (value.y > maxY)
+    value.y = maxY;
+  else if (value.y < minY)
+    value.y = minY;
   return value;
 }
 
 color toRGB(String hexColor) // convert hex to RGB
 {
-  color col = color(255,0,0); // set col as red in case of exception
+  color col = color(255, 0, 0); // set col as red in case of exception
   if ( hexColor.charAt(0) == '#')        // Checks if first character is '#'. It means that we have hex-style color.
   {
     try                                  // Try to convert R, G and B partf from hex-style color. For example: FF, 44, 88 (R, G, B).
@@ -41,16 +41,16 @@ color toRGB(String hexColor) // convert hex to RGB
     }
     catch( Exception e) {               // Problem with converting. leave color as red
     }
-    } 
+  } 
   return col;
 }
 
 int findMax(ArrayList<Entity> array) // for finding highest ID
 {
   int max = 0;
-  for(int i = 0 ; i < array.size();i++)
+  for (int i = 0; i < array.size(); i++)
   {
-    if(array.get(i).getID() > max)
+    if (array.get(i).getID() > max)
     {
       max = array.get(i).getID();
     }
@@ -60,8 +60,17 @@ int findMax(ArrayList<Entity> array) // for finding highest ID
 
 String getClassName(Entity e)
 {
-  String[] strings = split(e.getClass().toString(),"$");
+  String[] strings = split(e.getClass().toString(), "$");
   return strings[strings.length - 1];
+}
+
+int sign( float a )
+{
+  if ( a == 0 )
+    return 0;
+  if ( a < 0 )
+    return -1;
+  return 1;
 }
 // XML global functions
 
