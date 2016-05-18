@@ -30,7 +30,7 @@ class CollisionMesh
         currentCell.settings.applySettings();
         rect(pos.x, pos.y, boxSize.x, boxSize.y);
         fill(255);
-        text(currentCell.entityIds.get(0), pos.x, pos.y);
+        text(currentCell.entityIds.size(), pos.x, pos.y);
       }
       
     }
@@ -123,10 +123,14 @@ class CollisionCell
     settings.fill = true;
   }
 
-  int[] getObjectsIds()                                                                // return all the ID's of entities inside \\
+  Entity[] getEntities()                                                                // return all the ID's of entities inside \\
   {
-    int[] array = entityIds.array();
-    return(array);
+    Entity[] entities = new Entity[0];
+    for(int i = 0; i < entityIds.size();i++)
+    {
+      entities = (Entity[])append(entities, map.getEntity(map.getEntityIndexById(entityIds.get(i))));
+    }
+    return(entities);
   }
 
   void addEntity(int ID)

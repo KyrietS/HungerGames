@@ -32,7 +32,7 @@ void keyPressed()
     map.addEntity( new MeleeWeapon(mouseX,mouseY)); 
   } else if(key == 'p')
   {
-    map.addEntity(new physicsEntity("Box",mouseX,mouseY,1.005,25)); 
+    map.addEntity( new physicsEntity("Box",mouseX,mouseY,25) ); 
   }
   pressed = true;
 }
@@ -46,6 +46,7 @@ void keyReleased()
 void draw()
 {
   collisionMesh.resolveCollisions();
+  map.updateCellsAll();
   map.updateAll();
   map.clearBuffer();
   map.displayAll();
