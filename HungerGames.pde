@@ -61,7 +61,8 @@ void draw()
         map.removeEntityByLocation(location);
     }
   }
-  // debuging for testing apply force
+  
+  // debuging for testing apply force, only works on physicsEntities
   if(mousePressed)
   {
     physicsEntity a;
@@ -72,13 +73,8 @@ void draw()
     {
     PVector dir = new PVector(mouseX-pmouseX,mouseY-pmouseY);
     a.applyForce(dir.normalize());
-    println(a.vel);
     }
   }
   // to be deleted /\ later
+  
 }
-
-//void mouseClicked()
-//{
-//  println(frameRate);
-//}
