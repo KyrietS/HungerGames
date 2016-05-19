@@ -9,6 +9,7 @@ class Weapon extends Entity
     super("Weapon", x, y);
     scale = 3;
     animationTimer = new Timer(animationLength);
+    displayPriority = 1;
   }
 
   void update()
@@ -35,17 +36,16 @@ class Weapon extends Entity
     if (owner == null || isAttacking)
     {
       handleCollisionsBeforeMove();
-      if (owner != null)
-      {
-        pos.set(owner.getPos());
-      }
       handleCollisionsAfterMove();
+    }
+    if(owner != null)
+    {
+      pos.set(owner.getPos());
     }
   }
 
   void display()
   {
-    if (!isAttacking && owner!= null) return;
     super.display();
   }
 
@@ -63,10 +63,15 @@ class Weapon extends Entity
       }
       if ( e instanceof Tribute && owner != null && e.getID() != owner.getID() && isAttacking && !attacked)
       {
-        eT.health -= power;
+        attackTribute(eT);
         attacked = true;
       }
     }
+  }
+
+  void attackTribute(Tribute e)
+  {
+    e.health -= power;
   }
 
   void startAnimation()
@@ -75,7 +80,12 @@ class Weapon extends Entity
     isAttacking = true;
     attacked = false;
   }
-
+  
+  void setAnimationVelocity(float velocity, float distance)
+  {
+    animationTimer.setDelay(distance/(velocity/frameRate));
+  }
+  
   Boolean isColidingWith(Entity e)
   {
     boolean isCollision = false;
@@ -106,7 +116,12 @@ class Weapon extends Entity
         isCollision = true;
       }
     }
+    whenNotColiding();
     return isCollision;
+  }
+  void whenNotColiding()
+  {
+    
   }
   ArrayList< PVector > getTransformedVertices()
   {
@@ -133,7 +148,8 @@ class Weapon extends Entity
 
   protected Timer animationTimer;
   protected float animationLength;          // calculated in constructor, time in milliseconds for the animation to complete
-  protected float animationSpeed = 0.1;       // speed in pixels per second 
+  protected float animationSpeed = 0.1;       // speed in pixels per second (current)
+  protected float defaultAnimationSpeed = 0.1; // default
   protected float range;                    // the range of the weapon from point 0,0 on the parent object - the anchor point on weapons should be kept at the handle
   protected float effectiveRange = 0;       // from the 0,0 point on the parent object the distance to the 'blade' of the weapon, at this point and further the weapon is the most effective
   protected float power = 10;                // the main attribute deciding about actuall damage
@@ -176,16 +192,33 @@ class MeleeWeapon extends Weapon
   void update()
   {
     super.update();
-    angleOffset = getAngleAtTime(animationTimer.getTime());
+    if(!isAttacking)
+     angleOffset = 0;
+    else
+     angleOffset = getAngleAtTime(animationTimer.getTime());
   }
 
+  void attackTribute(Tribute e)
+  {
+    super.attackTribute(e); 
+  }
+  
+  void whenNotColiding()
+  {
+  }
+  
+  float calculateArcLength(float initialAngle, float finalAngle)
+  {
+    return( ( abs(initialAngle) + abs(finalAngle) ) /360 ) * PI * range * 2;
+  }
+  
   float getAngleAtTime(int time)
   {
-    float angle = (time/animationTimer.delay) * (abs(swingInitialAngle) + abs(swingFinalAngle));  // calculate the angle at particular time of swing. TimeNow/TimeTotal = AngleNow/AngleTotal therefore AngleNow = TimeNow/TimeTotal * AngleTotal
-    return angle + swingFinalAngle;
+    float angle = (((pow((time/animationTimer.delay) ,0.8))) * ((abs(swingInitialAngle) + abs(swingFinalAngle))));  // calculate the angle at particular time of swing. TimeNow/TimeTotal = AngleNow/AngleTotal therefore AngleNow = TimeNow/TimeTotal * AngleTotal
+    return angle - swingInitialAngle;
   }
 
-  protected float swingInitialAngle = PI/4;        // the starting angle of the swing in radians
-  protected float swingFinalAngle = -PI/4;          // the final angle of swing in radians
+  protected float swingInitialAngle = PI/1.5;        // the starting angle of the swing in radians
+  protected float swingFinalAngle = -PI/2;          // the final angle of swing in radians
   protected int tipVertex;             // the position of the tip vertex in the array vertices, for later calculations of realistic bouncing
 }

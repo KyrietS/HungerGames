@@ -3,21 +3,21 @@
 	<entity type="Box">
 		<anchor-point x="0" y="0"/>
 		<vertex x="-1" y="1"/>
-		<vertex x="1" y="1" />
+		<vertex x="-1" y="-1" />
 		<vertex x="1" y="-1"/>
-		<vertex x="-1" y="-1"/>
+		<vertex x="1" y="1"/>
 		<color value="#FF6905" />
 	</entity>
 	<entity type="Tribute">
 		<anchor-point x="0" y="0"/>
-		<vertex x="-2" y="-1"/>
-		<vertex x="-1" y="-2" />
-		<vertex x="1" y="-2"/>
-		<vertex x="2" y="-1"/>
-		<vertex x="2" y="1"/>
-		<vertex x="1" y="2" />
 		<vertex x="-1" y="2"/>
-		<vertex x="-2" y="1"/>
+		<vertex x="-2" y="1" />
+		<vertex x="-2" y="-1"/>
+		<vertex x="-1" y="-2"/>
+		<vertex x="1" y="-2"/>
+		<vertex x="2" y="-1" />
+		<vertex x="2" y="1"/>
+		<vertex x="1" y="2"/>
 		<color value="#FF0059" />
 	</entity>
 	<entity type="Weapon1">

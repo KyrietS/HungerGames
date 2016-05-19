@@ -30,6 +30,9 @@ void keyPressed()
   } else if (key == 'w')
   {
     map.addEntity( new MeleeWeapon(mouseX,mouseY)); 
+  } else if(key == 'p')
+  {
+    map.addEntity(new physicsEntity("Box",mouseX,mouseY,1.005,25)); 
   }
   pressed = true;
 }
@@ -58,6 +61,21 @@ void draw()
         map.removeEntityByLocation(location);
     }
   }
+  // debuging for testing apply force
+  if(mousePressed)
+  {
+    physicsEntity a;
+    try{
+    a =(physicsEntity)map.getEntity(map.getEntityIndexByPos(mouseX,mouseY));
+    }catch(ClassCastException e){a = null;}
+    if(a!= null)
+    {
+    PVector dir = new PVector(mouseX-pmouseX,mouseY-pmouseY);
+    a.applyForce(dir.normalize());
+    println(a.vel);
+    }
+  }
+  // to be deleted /\ later
 }
 
 //void mouseClicked()
