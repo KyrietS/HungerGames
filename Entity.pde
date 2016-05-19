@@ -2,17 +2,16 @@
 class Entity
 {
   boolean tmpDebug = false;
-  int displayPriority = 0;
-  Settings settings = new Settings(#000000, #000000, 1, MITER, PROJECT);
+  Settings settings = new Settings();
+
   Entity(String _type, int x, int y)
   {
     pos.set(x, y);
     type = _type;
     if ( !loadFromFile() )
-    {
       println("Entity: Cannot create an entity object. LoadFromFile failed!");
-    }
   }
+
   Entity() {
   } 
 
@@ -36,57 +35,75 @@ class Entity
     handleCollisionsAfterMove();
   }
 
-  // supporting Methods ---------- Supporting Methods \\
-
-  void resolveCollision(Entity e)  // change this to change behaviour of entity after a collision
+  void resolveCollision(Entity e)                                                                  // when a collision happend do this \\
   {
-    PVector toTarget = PVector.sub(pos, e.pos);
+    PVector toTarget = PVector.sub(pos, e.pos);                                                    // find the vector from the centre of target to this centre and divide it by 2, then move at it
     toTarget.div(2);
     moveInDirection(toTarget, 1, false);
   }
 
-  void handleCollisionsBeforeMove()
+  // supporting Methods ---------- Supporting Methods \\
+
+  void handleCollisionsBeforeMove()                                                                // sends the required collision events \\
   {
-    CollisionCell[] inCells = collisionMesh.getCells(getTransformedVertices());
-    int[] objectIds = getIdsOfEntitiesInCells(inCells);
-    Entity[] colidingEntities = getColidingEntities(objectIds);
+    CollisionCell[] inCells = collisionMesh.getCells(getTransformedVertices());                    // gets all the cells in which the vertices are contained
+    int[] objectIds = getIdsOfAllEntitiesInCells(inCells);                                         // gets a list of the entity id's from all cells
+    Entity[] colidingEntities = getColidingEntities(objectIds);                                    // gets only the coliding entities from the id's from all of the id's
+
     for (int i = 0; i < colidingEntities.length; i++)
     {
-      collisionMesh.addCollisionEvent(this, colidingEntities[i]); //resolveCollision(colidingEntities[i])
+      collisionMesh.addCollisionEvent(this, colidingEntities[i]);                                  // send collision event to the map, to handle it at next draw
     }
   }
 
-  void handleCollisionsAfterMove()
+  void handleCollisionsAfterMove()                                                                 // adds entities' id to cells in the collision mesh at new position \\
   {
-    CollisionCell[] inCells = collisionMesh.getCells(getTransformedVertices()); // update in which cells the entity is in
-    addIdToCells(inCells);
+    CollisionCell[] inCells = collisionMesh.getCells(getTransformedVertices());                    // gets all the cells in which the vertices are contained
+    addIdToCells(inCells);                                                                         // sends its' to appropriate cells
   }
 
-  Entity[] getColidingEntities(int[] objectIds)
+  int[] getIdsOfAllEntitiesInCells(CollisionCell[] inCells)                                        // gets a list of the entity id's from all cells \\
   {
-    Entity[] colidingEntities = new Entity[0];
-    for ( int i = 0; i < objectIds.length; i++ )
+    int[] objectIds = new int[0];
+
+    for (int i = 0; i < inCells.length; i++)
     {
-      if (objectIds[i] != ID)
+
+      for (int j = 0; j < inCells[i].getObjectsIds().length; j++)
       {
-        int index = map.getEntityIndexById(objectIds[i]);
-        if (index != -1)
-        {
-          Entity currentEntity = map.getEntity(index);
-          if (isColidingWith(currentEntity))
-          {
-            colidingEntities = (Entity[])append(colidingEntities, currentEntity);
-          }
-        }
+        objectIds = (int[])append(objectIds, inCells[i].getObjectsIds()[j]);                       // accumulates all the ids to a single table
       }
     }
+
+    return objectIds;
+  }
+
+  Entity[] getColidingEntities(int[] objectIds)                                                    // from a list of ids get a list of entities \\
+  {
+    Entity[] colidingEntities = new Entity[0];
+
+    for ( int i = 0; i < objectIds.length; i++ )
+    {
+      if (objectIds[i] == ID) continue;                                                            // if any of the entities is this entity skip to next 
+      int index = map.getEntityIndexById(objectIds[i]);                                            
+      if (index == -1) continue;                                                                   // if any of the entities dont exist anymore skip to next
+      
+      Entity currentEntity = map.getEntity(index);
+
+      if (isColidingWith(currentEntity))
+      {
+        colidingEntities = (Entity[])append(colidingEntities, currentEntity);
+      }
+      
+    }
+
     return colidingEntities;
   }
 
-  Boolean isColidingWith(Entity e)
+  Boolean isColidingWith(Entity e)                                                                 // checks if there is a collision with an entity \\
   {
     boolean isCollision = false;
-
+                                                                                                   // only colide with entities which have collisions enabled and a different collision group etc..
     if (e.collisionsEnabled && e.collisionsGroup != collisionsGroup && ID != e.getID() && collision.isCollision( e.getTransformedVertices(), this.getTransformedVertices() ) )
     { 
       if ( tmpDebug )
@@ -102,101 +119,75 @@ class Entity
     return isCollision;
   }
 
-  int[] getIdsOfEntitiesInCells(CollisionCell[] inCells)      
+  void addIdToCells(CollisionCell[] inCells)                                                      // adds its id to all the cells provided \\
   {
-    int[] objectIds = new int[0];
-    for (int i = 0; i < inCells.length; i++)
-    {
-      for (int j = 0; j < inCells[i].getObjectsIds().length; j++)
-      {
-        objectIds = (int[])append(objectIds, inCells[i].getObjectsIds()[j]);  // accumulate all the nearby objects by collecting data from all cells which the entity is in
-      }
-    }
-    return objectIds;
-  }
-
-  void addIdToCells(CollisionCell[] inCells)          
-  {
+    
     for (int i = 0; i < inCells.length; i++) 
     {
-      inCells[i].addEntity(ID); // add entities location to the cell at new position
+      inCells[i].addEntity(ID);
     }
+    
   }
 
-  void moveToPos(float x, float y, boolean pointAtVel)                  
+  void moveToPos(float x, float y, boolean pointAtVel)                                            // move in direction of the position at max speed, if pointAtVel is true then also point in direction of travel \\
   {
 
-    if ( dist(x, y, pos.x, pos.y) < 0.1) // check if arrived at target
+    if ( dist(x, y, pos.x, pos.y) < 0.1)                                                          // if already at the target stop
     {
       vel.set(0, 0);
       return;
     }
+    
+    PVector targetPos = new PVector(x, y);
     float speedTemp = speed;
     speedTemp/= frameRate;
-    PVector targetPos = new PVector(x, y);
-    targetPos.set(clamp(targetPos, 0, width, 0, height)); // clamp the position to the screen, efficient edge detection :)
+
+    targetPos.set(clamp(new PVector(x,y), 0, width, 0, height));                                 // clamp the position to the screen, efficient edge detection :)
     PVector resultantVector = PVector.sub(targetPos, pos);
     resultantVector.normalize();
-    resultantVector.mult(speedTemp * random(0.5, 1.5));
-    resultantVector.limit(speedTemp);
-    vel.set(resultantVector);
-    if (pointAtVel)
-      direction.set(vel);
+    resultantVector.mult(speedTemp * random(0.5, 1.5));                                          // multiply the normalized resultant by speed, +- random distortions
+    resultantVector.limit(speedTemp);                                                            // limit the magnitude of the vector to the speed
+    vel.set(resultantVector);                                                                    // finally set the velocity to the resultant vector
+    if (pointAtVel) direction.set(vel);                                                          // point in direction of travel
   }
 
-  void moveInDirection(PVector dir, float speedMult, boolean pointAtVel)        
+  void moveInDirection(PVector dir, float speedMult, boolean pointAtVel)                         //  move in general direction vector at speed * multiplier \\
   {
     float speedTemp = speed * speedMult;
     speedTemp /= frameRate;
+    
     dir.normalize();
     dir.mult(speedTemp);
     dir.limit(speedTemp);
     vel.set(dir);
-    if (pointAtVel)
-      direction.set(vel);
+    if (pointAtVel) direction.set(vel);
   }
 
-  ArrayList< PVector > getTransformedVertices()        
+  ArrayList< PVector > getTransformedVertices()                                                  // get global vertices \\
   {
     PVector vertex;
     ArrayList< PVector > transformedVertices = new ArrayList< PVector >();
+    
     for ( int i = 0; i < vertices.size(); i++ )
     {
       vertex = new PVector( vertices.get(i).x, vertices.get(i).y );
       vertex.sub( anchorPoint );
       vertex.mult(scale);
       vertex.add( anchorPoint );
-      float angle = PVector.angleBetween(new PVector(0, -1), direction); // calculate the angle from vector pointing upwards to the direction
-      if (direction.x < 0) angle = -angle;   // if the direction is to the right, rotate right. otherwise if it is to the left rotate to the left
-      else if (direction.x == 0) angle = 0;   // if the direction is the same as the vector up, do nothing           
+      
+      float angle = PVector.angleBetween(new PVector(0, -1), direction);                       // calculate the angle from vector pointing up
+      
+      if (direction.x < 0) angle = -angle;                                                     // if the direction is to the right, rotate right. otherwise if it is to the left rotate to the left
+      else if (direction.x == 0) angle = 0;                                                    // if the direction is the same as the vector up, do nothing   
+      
       vertex.rotate(angle);                                                      
       vertex.add( pos );
       transformedVertices.add( new PVector( vertex.x, vertex.y ) );
     }
+    
     return transformedVertices;
   }
-
-  PVector getPos() {          
-    return pos;
-  }
-  void setPos( float x, float y ) {  
-    pos.set(x, y);
-  }
-  void setPos( PVector v ) {  
-    pos.set(v);
-  }
-  int getID() {              
-    return ID;
-  }
-  void setVel(PVector dir) {  
-    vel.set(dir);
-  }
-  String getEntityType() {    
-    return type;
-  }
-  void deconstruct()
-  {
-  }
+  
   void printDebug()          
   {
     for ( int i = 0; i < vertices.size(); i++ )
@@ -204,20 +195,39 @@ class Entity
       println( "(" + ID + ") vert " + i + "(" + getTransformedVertices().get(i).x + "," + getTransformedVertices().get(i).y + ")");
     }
   }
+  
+  void deconstruct(){}
+  
+// ------- setters and getters --------
 
-  private int ID;
+  PVector getPos(){return pos;}
+  
+  void setPos( float x, float y ) {pos.set(x, y);}
+  
+  void setPos( PVector v ) {pos.set(v);}
+  
+  int getID() {return ID;}
+  
+  void setVel(PVector dir) {vel.set(dir);}
+  
+  String getEntityType() {return type;}
+  
+  protected String type = "None";
+  protected int ID;
+  protected int collisionsGroup;
+  protected int displayPriority = 0;
   protected float speed = 10;
-  protected float scale = 3.0;
-  protected PVector anchorPoint = new PVector(0, 0);
   protected PVector direction = new PVector(0, 0);
   protected PVector pos = new PVector(0, 0);
   protected PVector vel = new PVector(0, 0);
+  protected PVector anchorPoint = new PVector(0, 0);
+  protected float scale = 3.0;
   protected ArrayList< PVector > vertices = new ArrayList< PVector >();
-  protected String type = "None";
   protected boolean collisionsEnabled = true;
-  protected int collisionsGroup;
 
-  private boolean loadFromFile()  // Load data from file: "data\Entity.xml". More info about specification of the file can be found in Docs.
+// ---------- PRIVATE ---------
+
+  private boolean loadFromFile()                                                               // Load data from file: "data\Entity.xml". More info about specification of the file can be found in Docs. \\
   {
     boolean entityFound = false;
 
@@ -231,25 +241,26 @@ class Entity
       {
         XML currentChild = entities[ i ];
         // Find a proper entity.
-        if ( !currentChild.hasAttribute("type") ) break; // entity doesn't contain "type" attribute - skip.
-        if ( currentChild.getString( "type" ).equals(type) )  // correct entity found. Then load it. 
+        if ( !currentChild.hasAttribute("type") ) continue;                                   // entity doesn't contain "type" attribute - skip.
+        if ( currentChild.getString( "type" ).equals(type) )                                  // correct entity found. Then load it. 
         {
           entityFound = true;
-          PVector vertex = new PVector();        // Temporary variable for readability.
+          PVector vertex = new PVector();                                                     // Temporary variable for readability.
           String[] args = {"x", "y"};
 
-          if (validateAttributes(currentChild.getChild("anchor-point"), args))      // Loading anchor point.
+          if (validateAttributes(currentChild.getChild("anchor-point"), args))                // Loading anchor point.
           {
             anchorPoint.set(currentChild.getChild("anchor-point").getFloat("x"), currentChild.getChild("anchor-point").getFloat("y"));
           }
 
-          if (validateAttributes(currentChild.getChild("color"), "value"))         // loading color
+          if (validateAttributes(currentChild.getChild("color"), "value"))                    // loading color
           {
-            String hexColor = currentChild.getChild("color").getString("value");  // Loads color to string. For example: "#FF44BB".
+            String hexColor = currentChild.getChild("color").getString("value");              // Loads color to string. For example: "#FF44BB".
             settings.col = toRGB(hexColor);
           }
 
-          if ( (entities = currentChild.getChildren("vertex")) == null ) return false; // loading vertices
+          if ( (entities = currentChild.getChildren("vertex")) == null ) return false;        // loading vertices
+          
           for ( int j = 0; j < entities.length; j++ )
           {
             XML currentEntity = entities[ j ];
@@ -257,20 +268,26 @@ class Entity
             vertex.set(currentEntity.getFloat("x") - anchorPoint.x, currentEntity.getFloat("y") - anchorPoint.y);
             vertices.add( new PVector( vertex.x, vertex.y ) );
           }
+          
           return true;
-        } // if
-      } // for
-    } // try
-    catch( NullPointerException e ) { 
+        }
+        
+      }
+      
+    }
+    
+    catch( NullPointerException e ) {                                                         // Unknown problem with reading.
       println("Some element not found."); 
       return false;
-    } // Unknown problem with reading.
+    }                                                                                         
     if ( !entityFound ) println("Cannot find \"" + type + "\" entity in file: \"Data\\Entities.xml\"");
-    return false;
-  } // loadDataFromFile
-} // class Entity
+     return false;
+     
+  }
+}
 
 // PHYSICSENTITY ---------------------------------------------------------------- PHYSICSENTITY \\
+
 class physicsEntity extends Entity
 {
   physicsEntity(String _type, int x, int y, float _dragCoefficient, float _mass)
@@ -281,45 +298,47 @@ class physicsEntity extends Entity
     speed = 100;
     area = 0;
     mass = _mass;
-    for (int i = 0; i < vertices.size()-1; i++)  // important: all polygons that are to use this class, have to have their vertices listed in one direction. either clockwise or anticlockwise
+    
+    for (int i = 0; i < vertices.size()-1; i++)                                              // finds the area of the polygon
     {
       area += vertices.get(i).x * vertices.get(i+1).y;
     }
+    
     for (int i = 0; i < vertices.size()-1; i++)
     {
       area -= vertices.get(i).y * vertices.get(i+1).x;
     }
+    
     area /= 2;
-    if (area < 0) { 
-      area *= -1;
-    }
-    area *= pow(scale, 2);
+    if (area < 0)
+     area *= -1;
+    area *= pow(scale, 2);                                                                  // scales area up
   }
 
   void update()
   {
     applyForce(getFriction(0.68).div(frameRate));
-    //applyForce(getAirDrag(1.2).div(frameRate));// air drag not needed so far, would complicate everything
-    
+    //applyForce(getAirDrag(1.2).div(frameRate));                                           // air drag not needed so far, would complicate everything
+
     handleCollisionsBeforeMove();
-    
+
     vel.add(accel);
     pos.add(vel);
     direction.set(vel);
     accel.set(0, 0);
-    
+
     angVel += angAccel;
     ang += angVel;
-    if(ang > TWO_PI) ang = 0 + (ang - TWO_PI);
-    if(ang < 0) ang = TWO_PI - (ang - 0);
-    
-    if (vel.mag() <= 0.1) {
+    if (ang > TWO_PI) ang = 0 + (ang - TWO_PI);                                            // if angle is greater than 360 then start again at 0 and vice versa
+    if (ang < 0) ang = TWO_PI - (ang - 0);
+
+    if (vel.mag() <= 0.1) {                                                                // if stopped, allow another apply force (for debugging)
       pressed = false;
     }
-    
+
     handleCollisionsAfterMove();
   }
-  
+
   ArrayList< PVector > getTransformedVertices()
   {
     PVector vertex;
@@ -340,41 +359,43 @@ class physicsEntity extends Entity
     }
     return transformedVertices;
   }
-  
+
   void moveInDirection(PVector dir, float speedMult, boolean pointAtVel)  
   {
   }
 
-  void moveToPos(float x, float y, boolean pointAtVel) // this is not made for accuracy, but rather for projectiles that are supposed to roughly hit stuff
+  void moveToPos(float x, float y, boolean pointAtVel)                                    // go at pos with max speed (as acceleration) \\
   {
     if (pressed) return;
     PVector toTarget = PVector.sub(new PVector(x, y), pos);
     applyForce(toTarget.normalize().mult(speed));
     pressed = true;
   }
+  
+  void resolveCollision()
+  {
+  }
 
-  void applyForce(PVector force)
+  void applyForce(PVector force)                                                         // applies a force to the object \\
   {
     accel.add(PVector.div(force, mass));
   }
+  
+// --------- private ----------
 
-  PVector getAirDrag(float density)
+  private PVector getAirDrag(float density)                                              // gets the force of air drag on the object (not used)\\
   {
     PVector unitVelocity = vel.copy().normalize();
     PVector dragForce = PVector.mult(unitVelocity, -0.5 * density * (pow(vel.mag()/frameRate, 2) * dragCoefficient*area));
     return dragForce;
   }
 
-  PVector getFriction(float coefficient)
+  private PVector getFriction(float coefficient)                                         // gets the friction acting on the object \\
   {
     float normalForce = mass * gravity;
     PVector unitVelocity = vel.copy().normalize();
-    PVector frictionForce = unitVelocity.mult(-normalForce * -coefficient); // 
+    PVector frictionForce = unitVelocity.mult(-normalForce * -coefficient); 
     return frictionForce;
-  }
-
-  void resolveCollision()
-  {
   }
 
   boolean pressed;
