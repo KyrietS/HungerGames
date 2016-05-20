@@ -49,7 +49,6 @@ class Entity
     CollisionCell[] inCells = collisionMesh.getCells(getTransformedVertices());                    // gets all the cells in which the vertices are contained
     int[] objectIds = getIdsOfAllEntitiesInCells(inCells);                                         // gets a list of the entity id's from all cells
     Entity[] colidingEntities = getColidingEntities(objectIds);                                    // gets only the coliding entities from the id's from all of the id's
-
     for (int i = 0; i < colidingEntities.length; i++)
     {
       collisionMesh.addCollisionEvent(this, colidingEntities[i]);                                  // send collision event to the map, to handle it at next draw
@@ -89,7 +88,6 @@ class Entity
       if (index == -1) continue;                                                                   // if any of the entities dont exist anymore skip to next
       
       Entity currentEntity = map.getEntity(index);
-
       if (isColidingWith(currentEntity))
       {
         colidingEntities = (Entity[])append(colidingEntities, currentEntity);
@@ -121,7 +119,6 @@ class Entity
 
   void addIdToCells(CollisionCell[] inCells)                                                      // adds its id to all the cells provided \\
   {
-    
     for (int i = 0; i < inCells.length; i++) 
     {
       inCells[i].addEntity(ID);
@@ -298,7 +295,7 @@ class physicsEntity extends Entity
     speed = 100;
     area = 0;
     mass = _mass;
-    
+    momentOfInertia = findMomentOfInertia();
     for (int i = 0; i < vertices.size()-1; i++)                                              // finds the area of the polygon
     {
       area += vertices.get(i).x * vertices.get(i+1).y;
@@ -321,7 +318,6 @@ class physicsEntity extends Entity
     //applyForce(getAirDrag(1.2).div(frameRate));                                           // air drag not needed so far, would complicate everything
 
     handleCollisionsBeforeMove();
-
     vel.add(accel);
     pos.add(vel);
     direction.set(vel);
@@ -329,6 +325,7 @@ class physicsEntity extends Entity
 
     angVel += angAccel;
     ang += angVel;
+    angAccel = 0;
     if (ang > TWO_PI) ang = 0 + (ang - TWO_PI);                                            // if angle is greater than 360 then start again at 0 and vice versa
     if (ang < 0) ang = TWO_PI - (ang - 0);
 
@@ -337,27 +334,6 @@ class physicsEntity extends Entity
     }
 
     handleCollisionsAfterMove();
-  }
-
-  ArrayList< PVector > getTransformedVertices()
-  {
-    PVector vertex;
-    ArrayList< PVector > transformedVertices = new ArrayList< PVector >();
-    for ( int i = 0; i < vertices.size(); i++ )
-    {
-      vertex = new PVector( vertices.get(i).x, vertices.get(i).y );
-      vertex.sub( anchorPoint );
-      vertex.mult(scale);
-      vertex.add( anchorPoint );
-      float angle = PVector.angleBetween(new PVector(0, -1), direction);
-      if (direction.x < 0) angle = -angle;
-      else if (direction.x == 0) angle = 0;
-      angle += ang;
-      vertex.rotate(angle);     
-      vertex.add( pos );
-      transformedVertices.add( new PVector( vertex.x, vertex.y ) );
-    }
-    return transformedVertices;
   }
 
   void moveInDirection(PVector dir, float speedMult, boolean pointAtVel)  
@@ -381,23 +357,68 @@ class physicsEntity extends Entity
     accel.add(PVector.div(force, mass));
   }
   
+  void applyAngForce(float force, float distanceFromAxis)
+  {
+    float torque =force * distanceFromAxis;
+    angAccel += torque/momentOfInertia;
+  }
+  
+  float findMomentOfInertia()
+  {
+    float sum = 0;
+    for(int i = 0; i < vertices.size();i++)
+    {
+      PVector vertex = vertices.get(i);
+      float dist = dist(vertex.x,vertex.y,0,0);
+      sum += pow(dist*(mass/vertices.size()),3)/3;
+    }
+    return sum;
+  }
+    ArrayList< PVector > getTransformedVertices()
+  {
+    PVector vertex;
+    ArrayList< PVector > transformedVertices = new ArrayList< PVector >();
+    for ( int i = 0; i < vertices.size(); i++ )
+    {
+      vertex = new PVector( vertices.get(i).x, vertices.get(i).y );
+      vertex.sub( anchorPoint );
+      vertex.mult(scale);
+      vertex.add( anchorPoint );
+      float angle = PVector.angleBetween(new PVector(0, -1), direction);
+      if (direction.x < 0) angle = -angle;
+      else if (direction.x == 0) angle = 0;
+      angle += ang;
+      vertex.rotate(angle);     
+      vertex.add( pos );
+      transformedVertices.add( new PVector( vertex.x, vertex.y ) );
+    }
+    return transformedVertices;
+  }
+  
 // --------- private ----------
 
-  private PVector getAirDrag(float density)                                              // gets the force of air drag on the object (not used)\\
+  protected PVector getAirDrag(float density)                                              // gets the force of air drag on the object (not used)\\
   {
     PVector unitVelocity = vel.copy().normalize();
     PVector dragForce = PVector.mult(unitVelocity, -0.5 * density * (pow(vel.mag()/frameRate, 2) * dragCoefficient*area));
     return dragForce;
   }
 
-  private PVector getFriction(float coefficient)                                         // gets the friction acting on the object \\
+  protected PVector getFriction(float coefficient)                                         // gets the friction acting on the object \\
   {
     float normalForce = mass * gravity;
     PVector unitVelocity = vel.copy().normalize();
-    PVector frictionForce = unitVelocity.mult(-normalForce * -coefficient); 
+    PVector frictionForce = unitVelocity.mult(normalForce * coefficient); 
     return frictionForce;
   }
-
+  
+  protected float getAngFriction(float coefficient)
+  {
+    float frictionalForce = -angVel * coefficient;
+    println("angVel:",angVel,"friction:",frictionalForce);
+    return frictionalForce;
+  }
+  
   boolean pressed;
   protected float dragCoefficient;
   protected float area;
@@ -406,6 +427,7 @@ class physicsEntity extends Entity
   protected float ang = 0;
   protected float angVel = 0;
   protected float angAccel = 0;
+  protected float momentOfInertia = 0;;
   protected PVector accel = new PVector(0, 0);
 }
 
@@ -430,19 +452,18 @@ class Wall extends Entity
     }
   }
 
-  // Loads data from XML object. XML object must contain <entity type="Wall"> tag.
+                                                                                     // Loads data from XML object. XML object must contain <entity type="Wall"> tag.
   private boolean loadData( XML data )
   {
     if ( data == null || !data.hasAttribute("type") || !data.getString("type").equals("Wall") || data.getChildren("vertex") == null )
       return false;
 
-    PVector vertex = new PVector();             // Temporary variable for readability.
+    PVector vertex = new PVector();
     XML[] verts = data.getChildren("vertex");
 
     for ( int i = 0; i < verts.length; i++ )
-    {
-      // Current vertex doesn't contain x or y attribute.
-      if ( !verts[ i ].hasAttribute("x") || !verts[ i ].hasAttribute("y") )
+    { 
+      if ( !verts[ i ].hasAttribute("x") || !verts[ i ].hasAttribute("y") )         // Current vertex doesn't contain x or y attribute.
         return false;
       vertex.x = verts[ i ].getFloat("x");
       vertex.y = verts[ i ].getFloat("y");
@@ -473,7 +494,7 @@ class Tribute extends Entity
       speed = 0;
     else
       speed = 10; 
-    if (vel.mag() != 0) // if not moving dont use stamina
+    if (vel.mag() != 0)                                                           // if not moving dont use stamina
       stamina -= speed/frameRate;
     super.moveToPos(x, y, true);
   }
@@ -485,11 +506,11 @@ class Tribute extends Entity
       map.addEntityToRemoveBuffer(this);
     }
     super.update();
-    stamina += 9/frameRate; // 10 is the walking speed, only use a small amount of stamina for walking by replenishing 9 instead of 10
+    stamina += 9/frameRate;                                                      // 10 is the walking speed, only use a small amount of stamina for walking by replenishing 9 instead of 10
     stamina = clamp(stamina, -20, 100);
   }
 
-  void deconstruct()
+  void deconstruct()                                                             // called before death
   {
     dropWeapon();
   }

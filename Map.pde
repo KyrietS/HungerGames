@@ -20,7 +20,7 @@ class Map
   void removeEntity( int ID )
   {
     int location = getEntityIndexById(ID);
-    if (location != -1 && !entities.get(location).getEntityType().equals("Wall")) // for now just delete class "Box" so as not to delete walls
+    if (location != -1 && !entities.get(location).getEntityType().equals("Wall")) // dont delete walls
     {
       entities.remove(location); // deletes entity with the unique id
     }
@@ -41,14 +41,14 @@ class Map
 
   void removeEntityByLocation( int location)
   {
-    if (location != -1 && !entities.get(location).getEntityType().equals("Wall")) // for now just delete class "Box" so as not to delete walls
+    if (location != -1 && !entities.get(location).getEntityType().equals("Wall"))
       entities.remove(location); // deletes entity with the unique id
   }
 
   void removeEntity( Entity e)
   {
     int location = getEntityIndexById(e.ID);
-    if (location != -1 && !entities.get(location).getEntityType().equals("Wall")) // for now just delete class "Box" so as not to delete walls
+    if (location != -1 && !entities.get(location).getEntityType().equals("Wall"))
       entities.remove(location);
   }
 
@@ -70,7 +70,7 @@ class Map
     for (int i = 0; i < entities.size(); i++)
     {
       Entity currentEntity = entities.get(i);
-      if (collision.checkContaining(currentEntity.getTransformedVertices(), new PVector(x, y))) // checks if the entity is "close". to be added: proper collision detection 
+      if (collision.checkContaining(currentEntity.getTransformedVertices(), new PVector(x, y)))
         location = i; // return location
     }
     return location; // if no entity at pos return -1
@@ -78,18 +78,30 @@ class Map
 
   void sortEntitiesByDisplayPriority()
   {
-    for (int j = 0; j < entities.size() - 1; j++)
-    {
-      for (int i = 0; i < entities.size() - 1; i++)
-      {
-        if (entities.get(i).displayPriority > entities.get(i+1).displayPriority)
-        {
-          Entity eTemp = entities.get(i+1);
-          entities.set(i+1, entities.get(i));
-          entities.set(i, eTemp);
-        }
-      }
-    }
+    //println("---before---");
+    //  for (int i = 0; i < entities.size(); i++)                   // currently doesn't work, bug to fix
+    //{
+    //  println(entities.get(i).getEntityType());
+    //}
+    //println("---");
+    //  for (int j = 0; j < entities.size() - 1; j++)
+    //{
+    //  for (int i = 0; i < entities.size() - 1; i++)
+    //  {
+    //    if (entities.get(i).displayPriority > entities.get(i+1).displayPriority)
+    //    {
+    //      Entity eTemp = entities.get(i + 1);
+    //      entities.set(i + 1, entities.get(i));
+    //      entities.set(i, eTemp);
+    //    }
+    //  }
+    //}
+    //println("---after---");
+    //  for (int i = 0; i < entities.size(); i++)
+    //{
+    //  println(entities.get(i).getEntityType());
+    //}
+    //println("---");
   }
 
   void displayAll()
