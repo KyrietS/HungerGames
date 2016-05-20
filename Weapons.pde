@@ -1,47 +1,27 @@
 // WEAPON \\ 
-class Weapon extends Entity
+class Weapon extends physicsEntity
 {
-  boolean pressed;
   boolean attacked;
-
   Weapon(int x, int y)
   {
-    super("Weapon", x, y);
+    super("Weapon", x, y, 1, 5);
     scale = 3;
-    animationTimer = new Timer(animationLength);
     displayPriority = 1;
   }
 
   void update()
   {
-    animationTimer.update();
-    if (isAttacking && animationTimer.passed())
+    super.update();
+    if (owner != null)
     {
-      isAttacking = false; 
-      pressed = false;
+      pos.set(owner.pos);
+      if (mousePressed && !isAttacking)
+      {
+        startAttack();
+      }
     }
-
-    if (mousePressed && !pressed) 
-    {
-      if (owner != null)
-        startAnimation();
-      pressed = true;
-    }
-
-    if (!isAttacking)
-      collisionsEnabled = false;
-    else
-      collisionsEnabled = true; 
-
-    if (owner == null || isAttacking)
-    {
-      handleCollisionsBeforeMove();
-      handleCollisionsAfterMove();
-    }
-    if(owner != null)
-    {
-      pos.set(owner.getPos());
-    }
+    applyAngForce(getAngFriction(0.3), range);
+    // attacked = false, isAttacking = false to add
   }
 
   void display()
@@ -49,23 +29,31 @@ class Weapon extends Entity
     super.display();
   }
 
-  void resolveCollision(Entity e) // overides default action
+  void startAttack()
+  {
+    isAttacking = true;
+  }
+
+  void resolveCollision(Entity e)
   {
     if ( !(e instanceof Weapon) )
     {
-      Tribute eT = (Tribute)e;
-      if (owner == null && e instanceof Tribute && eT.weapons.size() < 1) 
-      {
-        owner = e;
-        collisionsGroup = owner.collisionsGroup;
-
-        eT.addWeapon(this);
+      if ( e instanceof Tribute )
+      {      
+        Tribute eT = (Tribute)e;
+        if (owner != null && isAttacking && !attacked && e.getID() != owner.getID())
+        {
+          attackTribute(eT);
+          attacked = true;
+        } else if (owner == null)
+        {
+          owner = e;
+          collisionsGroup = owner.collisionsGroup;
+          eT.addWeapon(this);
+        }
       }
-      if ( e instanceof Tribute && owner != null && e.getID() != owner.getID() && isAttacking && !attacked)
-      {
-        attackTribute(eT);
-        attacked = true;
-      }
+    } else
+    {
     }
   }
 
@@ -74,88 +62,34 @@ class Weapon extends Entity
     e.health -= power;
   }
 
-  void startAnimation()
-  {
-    animationTimer.set(); // zero the timer
-    isAttacking = true;
-    attacked = false;
-  }
-  
-  void setAnimationVelocity(float velocity, float distance)
-  {
-    animationTimer.setDelay(distance/(velocity/frameRate));
-  }
-  
+
   Boolean isColidingWith(Entity e)
   {
     boolean isCollision = false;
-    if (owner != null && e.getID() != owner.getID())
+
+    if (owner != null)
     {
-      if (getID() != e.getID() && collision.isCollision( e.getTransformedVertices(), this.getTransformedVertices() ) )
-      { 
-        if ( tmpDebug )
-        {
-          color rand = color(random(0, 255), random(0, 255), random(0, 255));
-          e.settings.col = rand;
-          settings.col = rand;
-          tmpDebug = false;
-        }
-        isCollision = true;
-      }
-    } else if (owner == null)
-    {
-      if (getID() != e.getID() && collision.isCollision( e.getTransformedVertices(), this.getTransformedVertices() ) )
-      { 
-        if ( tmpDebug )
-        {
-          color rand = color(random(0, 255), random(0, 255), random(0, 255));
-          e.settings.col = rand;
-          settings.col = rand;
-          tmpDebug = false;
-        }
-        isCollision = true;
-      }
+      if (owner.getID() == e.getID()) return false;
     }
-    whenNotColiding();
+    if (e.collisionsEnabled && e.collisionsGroup != collisionsGroup && getID() != e.getID() && collision.isCollision( e.getTransformedVertices(), this.getTransformedVertices() ) )
+    { 
+      if ( tmpDebug )
+      {
+        color rand = color(random(0, 255), random(0, 255), random(0, 255));
+        e.settings.col = rand;
+        settings.col = rand;
+        tmpDebug = false;
+      }
+      isCollision = true;
+    }
     return isCollision;
   }
-  void whenNotColiding()
-  {
-    
-  }
-  ArrayList< PVector > getTransformedVertices()
-  {
-    PVector vertex;
-    ArrayList< PVector > transformedVertices = new ArrayList< PVector >();
-    if (owner != null)
-      direction.set(owner.direction); // set direction to parents direction, every rotation will be relative to parent
-    for ( int i = 0; i < vertices.size(); i++ )
-    {
-      vertex = new PVector( vertices.get(i).x, vertices.get(i).y );
-      vertex.sub( anchorPoint );
-      vertex.mult(scale);
-      vertex.add( anchorPoint );
-      float angle = PVector.angleBetween(new PVector(0, -1), direction);
-      if (direction.x < 0) angle = -angle;
-      else if (direction.x == 0) angle = 0;
-      if (isAttacking) angle += angleOffset;
-      vertex.rotate(angle);     
-      vertex.add( pos );
-      transformedVertices.add( new PVector( vertex.x, vertex.y ) );
-    }
-    return transformedVertices;
-  }
 
-  protected Timer animationTimer;
-  protected float animationLength;          // calculated in constructor, time in milliseconds for the animation to complete
-  protected float animationSpeed = 0.1;       // speed in pixels per second (current)
-  protected float defaultAnimationSpeed = 0.1; // default
   protected float range;                    // the range of the weapon from point 0,0 on the parent object - the anchor point on weapons should be kept at the handle
   protected float effectiveRange = 0;       // from the 0,0 point on the parent object the distance to the 'blade' of the weapon, at this point and further the weapon is the most effective
   protected float power = 10;                // the main attribute deciding about actuall damage
   protected Entity owner = null;              // the owner
   protected boolean isAttacking = false;    // is the weapon in use
-  protected float angleOffset =0;
   protected PVector posOffset = new PVector(0, 0);
 }
 
@@ -182,43 +116,43 @@ class MeleeWeapon extends Weapon
 
     // calculate the time needed for each swing
 
-    float arcLength =  ( ( abs(swingInitialAngle) + abs(swingFinalAngle) ) /360 ) * PI * range * 2; // calculate the distance the tip of the weapon will travel (x/360 * circumference of circle)
-    animationTimer.setDelay( arcLength/(animationSpeed/frameRate) ); // create a timer object, used later to controll swings, with a delay equal to d/(v/frameRate)
-    pressed = false;
-
     direction.set(PVector.fromAngle(random(0, TWO_PI)));
   }
 
   void update()
   {
     super.update();
-    if(!isAttacking)
-     angleOffset = 0;
-    else
-     angleOffset = getAngleAtTime(animationTimer.getTime());
-  }
+    if(owner!= null)direction.set(owner.direction);
+    applyAngForce(round(clamp(targetAng-ang,1,-1))/frameRate, range);
 
+  }
+  void startAttack()
+  {
+    isAttacking = true;
+    if (targetAng == swingMaxAngle) 
+    {
+      targetAng = swingMinAngle;
+      return;
+    }
+    if (targetAng == swingMinAngle) 
+    {
+      targetAng = swingMaxAngle;
+      return;
+    }
+  }
   void attackTribute(Tribute e)
   {
-    super.attackTribute(e); 
+    super.attackTribute(e);
   }
-  
+
   void whenNotColiding()
   {
   }
   
-  float calculateArcLength(float initialAngle, float finalAngle)
-  {
-    return( ( abs(initialAngle) + abs(finalAngle) ) /360 ) * PI * range * 2;
-  }
-  
-  float getAngleAtTime(int time)
-  {
-    float angle = (((pow((time/animationTimer.delay) ,0.8))) * ((abs(swingInitialAngle) + abs(swingFinalAngle))));  // calculate the angle at particular time of swing. TimeNow/TimeTotal = AngleNow/AngleTotal therefore AngleNow = TimeNow/TimeTotal * AngleTotal
-    return angle - swingInitialAngle;
-  }
 
-  protected float swingInitialAngle = PI/1.5;        // the starting angle of the swing in radians
-  protected float swingFinalAngle = -PI/2;          // the final angle of swing in radians
+  protected float swingMaxAngle = -PI/2;        // the starting angle of the swing in radians
+  protected float swingMinAngle = PI/2;          // the final angle of swing in radians
+  protected float targetAng = swingMinAngle;
+  protected float speed = 5;
   protected int tipVertex;             // the position of the tip vertex in the array vertices, for later calculations of realistic bouncing
 }
